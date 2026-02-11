@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
-from io import BytesIO
 import base64
+from io import BytesIO
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
@@ -20,7 +20,8 @@ h4 { color: #e67e22; }
     border-radius:10px;
     font-size: 16px;
 }
-.stTextInput>div>div>input {
+/* Ensure the number input height matches your design */
+.stNumberInput>div>div>input {
     height: 35px;
     font-size: 16px;
 }
@@ -96,13 +97,19 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
-# ---------- SGPA INPUTS (text_input to allow blank + numeric keyboard) ----------
+# ---------- INPUT MARKS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    marks = st.text_input(f"{subject} (Credits:{credit})",
-                         placeholder="Enter marks",
-                         key=f"{selected_sem}_{subject}_num",
-                         input_mode="numeric")  # numeric keyboard
+    # Using number_input with value=None keeps it blank and triggers numeric keypad
+    marks = st.number_input(
+        f"{subject} (Credits:{credit})", 
+        min_value=0, 
+        max_value=100, 
+        value=None, 
+        step=1, 
+        placeholder="Enter marks", 
+        key=f"{selected_sem}_{subject}"
+    )
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
@@ -110,58 +117,49 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     total_credits = 0
     total_points = 0
     all_filled = True
+    
     for subject, credit in subjects.items():
         marks = marks_dict[subject]
-        if marks.strip() == "":
-            st.warning(f"⚠️ Enter marks for {subject}")
+        if marks is None:
             all_filled = False
             break
-        try:
-            marks_int = int(marks)
-            if marks_int < 1 or marks_int > 100:
-                st.warning(f"⚠️ Marks for {subject} must be 1-100")
-                all_filled = False
-                break
-            gp = calculate_grade_point(marks_int)
-            total_credits += credit
-            total_points += gp * credit
-        except:
-            st.warning(f"⚠️ Enter valid number for {subject}")
-            all_filled = False
-            break
+        
+        gp = calculate_grade_point(marks)
+        total_credits += credit
+        total_points += gp * credit
+
     if all_filled and total_credits > 0:
         sgpa = total_points / total_credits
-        st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
+        st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa, 2)}")
+    else:
+        st.warning("⚠️ Please fill all marks correctly.")
 
-# ---------- CGPA ----------
+# ---------- CGPA SECTION ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator")
 
-cgpa_inputs = {}
+sgpa_inputs = {}
+# Using columns to make it more mobile-friendly (less vertical scrolling)
+cols = st.columns(2)
 for sem in range(1, 9):
-    sgpa = st.text_input(f"{sem} Semester SGPA",
-                         placeholder="Enter SGPA",
-                         key=f"manual_sgpa_{sem}",
-                         input_mode="numeric")
-    cgpa_inputs[sem] = sgpa
+    with cols[sem % 2]:
+        sgpa = st.number_input(
+            f"Sem {sem} SGPA", 
+            min_value=0.0, 
+            max_value=10.0, 
+            value=None, 
+            step=0.01, 
+            placeholder="0.00", 
+            key=f"manual_sgpa{sem}"
+        )
+        sgpa_inputs[sem] = sgpa
 
 if st.button("Calculate Final CGPA"):
-    sgpa_list = []
-    for sem, val in cgpa_inputs.items():
-        if val.strip() != "":
-            try:
-                num = float(val)
-                if num < 1:
-                    st.warning(f"⚠️ SGPA for semester {sem} must be >=1")
-                    sgpa_list = []
-                    break
-                sgpa_list.append(num)
-            except:
-                st.warning(f"⚠️ Enter valid number for semester {sem}")
-                sgpa_list = []
-                break
+    # Filter out None values to calculate average of entered semesters only
+    sgpa_list = [val for val in sgpa_inputs.values() if val is not None]
+    
     if sgpa_list:
-        cgpa = sum(sgpa_list)/len(sgpa_list)
-        st.success(f"🎉 Your final CGPA: {round(cgpa,2)}")
+        cgpa = sum(sgpa_list) / len(sgpa_list)
+        st.success(f"🎉 Your final CGPA: {round(cgpa, 2)}")
     else:
         st.warning("⚠️ Enter SGPA for at least one semester.")
