@@ -105,10 +105,15 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
-# ---------- FUNCTION TO CREATE HTML INPUT WITH LABEL ----------
+# ---------- FUNCTION TO CREATE HTML NUMBER INPUT WITH LABEL ----------
 def html_number_input_with_label(subject_name, credit, key, max_value=100):
     st.markdown(f'<label class="subject-label">{subject_name} (Credits:{credit})</label>', unsafe_allow_html=True)
-    return st.text_input("", placeholder=f"Enter marks 1-{max_value}", key=key, input_mode="numeric")
+    st.markdown(f"""
+    <input id="{key}" type="number" inputmode="numeric" pattern="[1-9][0-9]*" 
+    placeholder="Enter marks 1-{max_value}" max="{max_value}" style="height:35px; font-size:16px; width:100%; border-radius:5px; padding:5px; margin-bottom:10px;">
+    """, unsafe_allow_html=True)
+    # Hidden input to capture value in Python
+    return st.text_input("", key=f"{key}_hidden")
 
 # ---------- SGPA INPUTS ----------
 marks_dict = {}
