@@ -43,7 +43,7 @@ except:
 
 # ---------- TITLE ----------
 st.markdown("<h2 style='text-align: center;font-size:29px;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center;font-size:26px;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center;font-size:20px;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ---------- GRADE FUNCTION ----------
