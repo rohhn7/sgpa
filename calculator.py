@@ -7,7 +7,8 @@ st.set_page_config(page_title="SIT AIML SGPA Calculator", layout="centered")
 st.markdown("""
 <style>
 body {
-    background-color: #e8f6f3;  /* changed background color */
+    background-color: #f5f7fa;  /* very light, safe background */
+    color: #1c1c1c;
 }
 h2 {
     color: #1b4f72;
@@ -32,8 +33,15 @@ h4 {
 
 # ---------- LOGO ----------
 try:
-    logo = Image.open("logo.png")  # Make sure logo.png is in same folder
-    st.image(logo, width=180, use_column_width=False)  # This centers logo automatically
+    logo = Image.open("logo.png")
+    st.markdown(
+        f"""
+        <div style='text-align:center; margin:20px 0;'>
+            <img src='logo.png' style='display:block; margin: 0 auto; width:180px;'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 except:
     st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
@@ -44,7 +52,11 @@ st.markdown("<hr>", unsafe_allow_html=True)
 
 # ---------- CURRENT SEMESTER SGPA ----------
 st.subheader("3rd Semester SGPA Calculator")
-st.markdown("<div style='background-color:#d1f2eb; padding:10px; border-radius:10px'>Enter your marks for each subject:</div>", unsafe_allow_html=True)
+st.markdown("""
+<div style='background-color:#d9f0f0; padding:10px; border-radius:10px; color:#1c1c1c'>
+Enter your marks for each subject:
+</div>
+""", unsafe_allow_html=True)
 
 subjects = {
     "Mathematics for CS (BCS301)": 4,
@@ -112,7 +124,11 @@ if st.button("Calculate SGPA"):
 # ---------- CGPA ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator (3 Semesters Average)")
-st.markdown("<div style='background-color:#f9e79f; padding:10px; border-radius:10px'>Enter SGPA of 1st, 2nd, and 3rd semester:</div>", unsafe_allow_html=True)
+st.markdown("""
+<div style='background-color:#fff4d9; padding:10px; border-radius:10px; color:#1c1c1c'>
+Enter SGPA of 1st, 2nd, and 3rd semester:
+</div>
+""", unsafe_allow_html=True)
 
 sgpa1 = st.text_input("Enter 1st Semester SGPA", placeholder="SGPA 1", key="cgpa1")
 sgpa2 = st.text_input("Enter 2nd Semester SGPA", placeholder="SGPA 2", key="cgpa2")
