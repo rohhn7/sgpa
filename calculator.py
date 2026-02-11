@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import base64
 from io import BytesIO
+import re
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
@@ -20,7 +21,7 @@ h4 { color: #e67e22; font-size: 20px; }
     border-radius:10px;
     font-size: 16px;
 }
-.stNumberInput>div>div>input {
+.stTextInput>div>div>input {
     height: 35px;
     font-size: 16px;
 }
@@ -96,16 +97,26 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
-# ---------- INPUT MARKS WITH NUMBER INPUT ----------
+# ---------- FUNCTION FOR NUMERIC INPUT ----------
+def get_numeric_input(label, key):
+    value = st.text_input(label, key=key)
+    if value.strip() == "":
+        return None
+    elif not re.fullmatch(r'\d+', value.strip()):
+        st.warning("⚠️ Only numbers allowed!")
+        return None
+    else:
+        marks = int(value.strip())
+        if 0 <= marks <= 100:
+            return marks
+        else:
+            st.warning("⚠️ Marks must be 0-100")
+            return None
+
+# ---------- INPUT MARKS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    marks = st.number_input(
-        f"{subject} (Credits: {credit})",
-        min_value=0,
-        max_value=100,
-        step=1,
-        key=f"{selected_sem}_{subject}"
-    )
+    marks = get_numeric_input(f"{subject} (Credits: {credit})", f"{selected_sem}_{subject}")
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
@@ -113,37 +124,49 @@ semester_sgpas = {}  # store calculated SGPA
 if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     total_credits = 0
     total_points = 0
+    all_filled = True
     for subject, credit in subjects.items():
         marks = marks_dict[subject]
+        if marks is None:
+            all_filled = False
+            break
         gp = calculate_grade_point(marks)
         total_credits += credit
         total_points += gp * credit
     
-    if total_credits > 0:
+    if all_filled and total_credits>0:
         sgpa = total_points / total_credits
         semester_sgpas[selected_sem] = sgpa
         st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
     else:
-        st.warning("⚠️ Something went wrong. Please check your inputs.")
+        st.warning("⚠️ Please fill all marks correctly.")
 
 # ---------- CGPA SECTION ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator (Manual for all semesters)")
 
+def get_sgpa_input(label, key):
+    value = st.text_input(label, key=key)
+    if value.strip() == "":
+        return None
+    try:
+        sgpa = float(value.strip())
+        if 0 <= sgpa <= 10:
+            return sgpa
+        else:
+            st.warning("⚠️ SGPA must be 0-10")
+            return None
+    except:
+        st.warning("⚠️ Enter valid numeric SGPA")
+        return None
+
 sgpa_inputs = {}
 for sem in range(1,9):
-    sgpa = st.number_input(
-        f"{sem} Semester SGPA",
-        min_value=0.0,
-        max_value=10.0,
-        step=0.01,
-        format="%.2f",
-        key=f"manual_sgpa{sem}"
-    )
+    sgpa = get_sgpa_input(f"{sem} Semester SGPA", f"manual_sgpa{sem}")
     sgpa_inputs[sem] = sgpa
 
 if st.button("Calculate Final CGPA"):
-    sgpa_list = [sgpa for sgpa in sgpa_inputs.values() if sgpa>0]
+    sgpa_list = [sgpa for sgpa in sgpa_inputs.values() if sgpa is not None]
     if sgpa_list:
         cgpa = sum(sgpa_list)/len(sgpa_list)
         st.success(f"🎉 Your final CGPA: {round(cgpa,2)}")
