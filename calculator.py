@@ -136,7 +136,7 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
 
 # ---------- CGPA SECTION ----------
 st.markdown("<hr>", unsafe_allow_html=True)
-st.subheader("CGPA Calculator (Manual for all semesters)")
+st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
 for sem in range(1,9):
