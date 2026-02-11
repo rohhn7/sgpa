@@ -1,17 +1,16 @@
 import streamlit as st
 from PIL import Image
 
-# ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA Calculator", layout="centered")
 
 # ---------- CUSTOM CSS ----------
 st.markdown("""
 <style>
 body {
-    background-color: #f5f5f5;
+    background-color: #e8f6f3;  /* changed background color */
 }
 h2 {
-    color: #2c3e50;
+    color: #1b4f72;
 }
 h4 {
     color: #e67e22;
@@ -33,27 +32,19 @@ h4 {
 
 # ---------- LOGO ----------
 try:
-    logo = Image.open("logo.png")
-    st.markdown(
-        f"""
-        <div style='text-align: center; margin-bottom:20px;'>
-            <img src='logo.png' width='180'>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    logo = Image.open("logo.png")  # Make sure logo.png is in same folder
+    st.image(logo, width=180, use_column_width=False)  # This centers logo automatically
 except:
-    st.warning("Logo file not found")
+    st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
 # ---------- TITLE ----------
 st.markdown("<h2 style='text-align: center;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
-
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ---------- CURRENT SEMESTER SGPA ----------
 st.subheader("3rd Semester SGPA Calculator")
-st.markdown("<div style='background-color:#d6eaf8; padding:10px; border-radius:10px'>Enter your marks for each subject:</div>", unsafe_allow_html=True)
+st.markdown("<div style='background-color:#d1f2eb; padding:10px; border-radius:10px'>Enter your marks for each subject:</div>", unsafe_allow_html=True)
 
 subjects = {
     "Mathematics for CS (BCS301)": 4,
@@ -71,7 +62,6 @@ for subject, credit in subjects.items():
     marks = st.text_input(f"{subject} (Credits: {credit})", placeholder="Enter marks", key=subject)
     marks_dict[subject] = marks
 
-# ---------- GRADE FUNCTION ----------
 def calculate_grade_point(marks):
     if marks >= 90:
         return 10
@@ -88,7 +78,6 @@ def calculate_grade_point(marks):
     else:
         return 0
 
-# ---------- SGPA CALCULATION ----------
 if st.button("Calculate SGPA"):
     total_credits = 0
     total_points = 0
@@ -120,10 +109,10 @@ if st.button("Calculate SGPA"):
     elif total_credits == 0:
         st.warning("⚠️ Please enter marks to calculate SGPA.")
 
-# ---------- CGPA CALCULATOR ----------
+# ---------- CGPA ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator (3 Semesters Average)")
-st.markdown("<div style='background-color:#fcf3cf; padding:10px; border-radius:10px'>Enter SGPA of 1st, 2nd, and 3rd semester:</div>", unsafe_allow_html=True)
+st.markdown("<div style='background-color:#f9e79f; padding:10px; border-radius:10px'>Enter SGPA of 1st, 2nd, and 3rd semester:</div>", unsafe_allow_html=True)
 
 sgpa1 = st.text_input("Enter 1st Semester SGPA", placeholder="SGPA 1", key="cgpa1")
 sgpa2 = st.text_input("Enter 2nd Semester SGPA", placeholder="SGPA 2", key="cgpa2")
