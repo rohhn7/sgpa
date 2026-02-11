@@ -58,85 +58,76 @@ def calculate_grade_point(marks):
 
 # ---------- SUBJECTS PER SEM ----------
 sem_subjects = {
-    "3rd": {
+    "3": {
         "Mathematics for CS (BCS301)":4, "Digital Design & CO (BCS302)":4,
         "Operating Systems (BCS303)":4, "Data Structures (BCS304)":3,
         "Data Structures Lab (BCSL305)":1, "OOP with Java (BCS306A)":3,
         "Social Connectivity And Responsibility (BSCK307)":1,
         "Data Analytics With Excel (BCS358A)":1
     },
-    "4th": {
+    "4": {
         "Mathematics for AI (BCS401)":4, "Computer Networks (BCS402)":4,
         "Database Management (BCS403)":4, "Machine Learning Basics (BCS404)":3,
         "ML Lab (BCSL405)":1, "Web Programming (BCS406A)":3,
         "Professional Ethics (BSCK407)":1
     },
-    "5th": {
+    "5": {
         "Data Mining (BCS501)":4, "Deep Learning (BCS502)":4,
         "NLP (BCS503)":4, "AI Lab (BCSL504)":3,
         "Big Data Analytics (BCS505A)":3, "Soft Skills (BSCK506)":1
     },
-    "6th": {
+    "6": {
         "Computer Vision (BCS601)":4, "Reinforcement Learning (BCS602)":4,
         "Cloud Computing (BCS603)":3, "AI Project Lab (BCSL604)":3,
         "Entrepreneurship (BSCK605)":1
     },
-    "7th": {
+    "7": {
         "Advanced ML (BCS701)":4, "Robotics AI (BCS702)":4,
         "IoT & AI (BCS703)":3, "AI Project Lab 2 (BCSL704)":3
     },
-    "8th": {
+    "8": {
         "AI Thesis (BCS801)":6, "Internship Evaluation (BCS802)":4
     }
 }
 
-# ---------- SGPA CALCULATORS ----------
-semester_sgpas = {}
-for sem, subjects in sem_subjects.items():
-    st.subheader(f"{sem} Semester SGPA Calculator")
-    st.markdown(f"<div style='background-color:#d9f0f0; padding:10px; border-radius:10px;'>Enter marks for {sem} semester subjects</div>", unsafe_allow_html=True)
-    
-    marks_dict = {}
-    for subject, credit in subjects.items():
-        marks = st.text_input(f"{subject} (Credits:{credit})", placeholder="Enter marks", key=f"{sem}_{subject}")
-        marks_dict[subject] = marks
-    
-    if st.button(f"Calculate SGPA - {sem} Semester", key=f"btn_{sem}"):
-        total_credits = 0
-        total_points = 0
-        all_filled = True
-        for subject, credit in subjects.items():
-            marks = marks_dict[subject]
-            if marks == "" or marks is None:
-                all_filled = False
-                break
-            try:
-                marks = int(marks)
-                if 0 <= marks <= 100:
-                    gp = calculate_grade_point(marks)
-                    total_credits += credit
-                    total_points += gp * credit
-                else:
-                    st.warning(f"⚠️ Marks for {subject} must be 0-100")
-                    all_filled = False
-                    break
-            except:
-                st.warning(f"⚠️ Enter valid marks for {subject}")
-                all_filled = False
-                break
-        if all_filled and total_credits>0:
-            sgpa = total_points/total_credits
-            semester_sgpas[sem] = sgpa
-            st.success(f"🎉 {sem} Semester SGPA: {round(sgpa,2)}")
-        else:
-            st.warning("⚠️ Please fill all marks correctly.")
+# ---------- SEMESTER DROPDOWN ----------
+selected_sem = st.selectbox("Select Semester to calculate SGPA", options=["3","4","5","6","7","8"])
+st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
-# ---------- FINAL CGPA ----------
-st.markdown("<hr>", unsafe_allow_html=True)
-st.subheader("Final CGPA Calculator")
-if st.button("Calculate Final CGPA"):
-    if semester_sgpas:
-        cgpa = sum(semester_sgpas.values())/len(semester_sgpas)
-        st.success(f"🎉 Your final CGPA after {len(semester_sgpas)} semesters: {round(cgpa,2)}")
+subjects = sem_subjects[selected_sem]
+
+# ---------- INPUT MARKS ----------
+marks_dict = {}
+for subject, credit in subjects.items():
+    marks = st.text_input(f"{subject} (Credits:{credit})", placeholder="Enter marks", key=f"{selected_sem}_{subject}")
+    marks_dict[subject] = marks
+
+# ---------- CALCULATE SGPA ----------
+if st.button(f"Calculate SGPA for {selected_sem} Semester"):
+    total_credits = 0
+    total_points = 0
+    all_filled = True
+    for subject, credit in subjects.items():
+        marks = marks_dict[subject]
+        if marks == "" or marks is None:
+            all_filled = False
+            break
+        try:
+            marks = int(marks)
+            if 0 <= marks <= 100:
+                gp = calculate_grade_point(marks)
+                total_credits += credit
+                total_points += gp * credit
+            else:
+                st.warning(f"⚠️ Marks for {subject} must be 0-100")
+                all_filled = False
+                break
+        except:
+            st.warning(f"⚠️ Enter valid marks for {subject}")
+            all_filled = False
+            break
+    if all_filled and total_credits>0:
+        sgpa = total_points / total_credits
+        st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
     else:
-        st.warning("⚠️ Please calculate at least one semester SGPA first.")
+        st.warning("⚠️ Please fill all marks correctly.")
