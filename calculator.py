@@ -1,5 +1,7 @@
 import streamlit as st
 from PIL import Image
+import base64
+from io import BytesIO
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA Calculator", layout="centered")
@@ -35,11 +37,21 @@ h4 {
 # ---------- LOGO ----------
 try:
     logo = Image.open("logo.png")  # Make sure logo.png is in the same folder
-    # Use columns to center the logo
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        st.image(logo, width=180)
-    st.markdown("<br>", unsafe_allow_html=True)  # spacing below logo
+
+    # Convert image to base64 to embed directly
+    buffered = BytesIO()
+    logo.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+
+    st.markdown(
+        f"""
+        <div style='text-align:center; margin-top:10px; margin-bottom:20px;'>
+            <img src="data:image/png;base64,{img_str}" width="180"/>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 except:
     st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
