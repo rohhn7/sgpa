@@ -2,27 +2,59 @@ import streamlit as st
 from PIL import Image
 import base64
 from io import BytesIO
+import time
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
 
-# ---------- CUSTOM CSS ----------
+# ---------- CUSTOM CSS WITH ANIMATIONS ----------
 st.markdown("""
 <style>
-body { background-color: #f5f7fa; color: #1c1c1c; }
+/* Background animation */
+body { 
+    background-color: #f5f7fa; 
+    color: #1c1c1c; 
+}
+
+/* Smooth transition for input cards */
+div.stNumberInput {
+    transition: all 0.3s ease-in-out;
+}
+
+div.stNumberInput:hover {
+    transform: scale(1.01);
+}
+
+/* Button hover effects */
+.stButton>button {
+    background: linear-gradient(45deg, #1abc9c, #16a085);
+    color: white;
+    height: 45px;
+    width: 100%;
+    border-radius:12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.stButton>button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(26, 188, 156, 0.3);
+}
+
 h2 { color: #1b4f72; }
 h4 { color: #e67e22; }
-.stButton>button {
-    background-color: #1abc9c;
-    color: white;
-    height: 40px;
-    width: 100%;
-    border-radius:10px;
-    font-size: 16px;
+
+/* Animation for the results */
+.result-text {
+    animation: fadeIn 1.5s;
 }
-.stNumberInput>div>div>input {
-    height: 35px;
-    font-size: 16px;
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -118,8 +150,12 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
         total_points += calculate_grade_point(val) * credit
     
     if all_filled:
-        sgpa = total_points / total_credits
-        st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
+        # Spinner for calculation animation
+        with st.spinner('Calculating your SGPA...'):
+            time.sleep(0.8)
+            sgpa = total_points / total_credits
+            st.balloons()
+            st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
     else:
         st.warning("⚠️ Please fill all subject marks.")
 
@@ -129,7 +165,7 @@ st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
 
-# Removed columns to ensure a strict 1-8 vertical order on all devices
+# Strict 1-8 vertical order
 for sem in range(1, 9):
     val = st.number_input(
         f"Sem {sem} SGPA", 
@@ -141,7 +177,10 @@ for sem in range(1, 9):
 if st.button("Calculate Final CGPA"):
     valid_values = [v for v in sgpa_inputs.values() if v is not None]
     if valid_values:
-        final_cgpa = sum(valid_values) / len(valid_values)
-        st.success(f"🎉 Your final CGPA: {round(final_cgpa, 2)}")
+        with st.spinner('Calculating final CGPA...'):
+            time.sleep(1)
+            final_cgpa = sum(valid_values) / len(valid_values)
+            st.snow()
+            st.success(f"🎉 Your final CGPA: {round(final_cgpa, 2)}")
     else:
         st.warning("⚠️ Please enter at least one Semester SGPA.")
