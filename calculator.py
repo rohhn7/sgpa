@@ -1,13 +1,14 @@
 import streamlit as st
 from PIL import Image
 
+# ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA Calculator", layout="centered")
 
 # ---------- CUSTOM CSS ----------
 st.markdown("""
 <style>
 body {
-    background-color: #f5f7fa;  /* very light, safe background */
+    background-color: #f5f7fa;  /* safe light background */
     color: #1c1c1c;
 }
 h2 {
@@ -33,9 +34,15 @@ h4 {
 
 # ---------- LOGO ----------
 try:
-    logo = Image.open("logo.png")  # Make sure logo.png is in the same folder
-    st.image(logo, width=180)      # Automatically centered
-    st.markdown("<br>", unsafe_allow_html=True)  # spacing below logo
+    logo = Image.open("logo.png")
+    st.markdown(
+        f"""
+        <div style='text-align:center; margin-top:10px; margin-bottom:20px;'>
+            <img src='logo.png' width='180'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 except:
     st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
@@ -68,6 +75,7 @@ for subject, credit in subjects.items():
     marks = st.text_input(f"{subject} (Credits: {credit})", placeholder="Enter marks", key=subject)
     marks_dict[subject] = marks
 
+# ---------- GRADE FUNCTION ----------
 def calculate_grade_point(marks):
     if marks >= 90:
         return 10
@@ -84,6 +92,7 @@ def calculate_grade_point(marks):
     else:
         return 0
 
+# ---------- SGPA CALCULATION ----------
 if st.button("Calculate SGPA"):
     total_credits = 0
     total_points = 0
