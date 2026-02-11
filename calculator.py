@@ -4,7 +4,7 @@ import base64
 from io import BytesIO
 
 # ---------- PAGE CONFIG ----------
-st.set_page_config(page_title="SIT AIML SGPA Calculator", layout="centered")
+st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
 
 # ---------- CUSTOM CSS ----------
 st.markdown("""
@@ -103,6 +103,7 @@ for subject, credit in subjects.items():
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
+semester_sgpas = {}  # store calculated SGPA
 if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     total_credits = 0
     total_points = 0
@@ -128,6 +129,32 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
             break
     if all_filled and total_credits>0:
         sgpa = total_points / total_credits
+        semester_sgpas[selected_sem] = sgpa
         st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
     else:
         st.warning("⚠️ Please fill all marks correctly.")
+
+# ---------- CGPA SECTION ----------
+st.markdown("<hr>", unsafe_allow_html=True)
+st.subheader("CGPA Calculator (Manual for all semesters)")
+
+sgpa_inputs = {}
+for sem in range(1,9):
+    sgpa = st.text_input(f"{sem} Semester SGPA", placeholder=f"Enter SGPA for Sem {sem}", key=f"manual_sgpa{sem}")
+    sgpa_inputs[sem] = sgpa
+
+if st.button("Calculate Final CGPA"):
+    sgpa_list = []
+    for sem, sgpa in sgpa_inputs.items():
+        if sgpa.strip() != "":
+            try:
+                sgpa_list.append(float(sgpa))
+            except:
+                st.warning(f"⚠️ Enter valid SGPA for semester {sem}")
+                sgpa_list = []
+                break
+    if sgpa_list:
+        cgpa = sum(sgpa_list)/len(sgpa_list)
+        st.success(f"🎉 Your final CGPA: {round(cgpa,2)}")
+    else:
+        st.warning("⚠️ Enter SGPA for at least one semester.")
