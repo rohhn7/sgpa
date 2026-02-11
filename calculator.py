@@ -99,11 +99,10 @@ subjects = sem_subjects[selected_sem]
 # ---------- INPUT MARKS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    # Keep label like before, numeric input, starts empty (min_value=1)
-    marks = st.number_input(
+    # Use text_input so it starts blank
+    marks = st.text_input(
         label=f"{subject} (Credits:{credit})",
-        min_value=1, max_value=100, step=1,
-        format="%d",
+        placeholder="Enter marks",
         key=f"{selected_sem}_{subject}"
     )
     marks_dict[subject] = marks
@@ -116,13 +115,19 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     all_filled = True
     for subject, credit in subjects.items():
         marks = marks_dict[subject]
-        if marks is None:
+        if marks.strip() == "":
             all_filled = False
             break
         try:
-            gp = calculate_grade_point(marks)
-            total_credits += credit
-            total_points += gp * credit
+            marks_int = int(marks)
+            if 0 <= marks_int <= 100:
+                gp = calculate_grade_point(marks_int)
+                total_credits += credit
+                total_points += gp * credit
+            else:
+                st.warning(f"⚠️ Marks for {subject} must be 0-100")
+                all_filled = False
+                break
         except:
             st.warning(f"⚠️ Enter valid marks for {subject}")
             all_filled = False
@@ -140,10 +145,9 @@ st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
 for sem in range(1,9):
-    sgpa = st.number_input(
+    sgpa = st.text_input(
         label=f"{sem} Semester SGPA",
-        min_value=0.0, max_value=10.0, step=0.01,
-        format="%.2f",
+        placeholder=f"Enter SGPA for Sem {sem}",
         key=f"manual_sgpa{sem}"
     )
     sgpa_inputs[sem] = sgpa
@@ -151,7 +155,7 @@ for sem in range(1,9):
 if st.button("Calculate Final CGPA"):
     sgpa_list = []
     for sem, sgpa in sgpa_inputs.items():
-        if sgpa is not None:
+        if sgpa.strip() != "":
             try:
                 sgpa_list.append(float(sgpa))
             except:
