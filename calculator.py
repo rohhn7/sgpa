@@ -9,16 +9,9 @@ st.set_page_config(page_title="SIT AIML SGPA Calculator", layout="centered")
 # ---------- CUSTOM CSS ----------
 st.markdown("""
 <style>
-body {
-    background-color: #f5f7fa;  /* safe light background */
-    color: #1c1c1c;
-}
-h2 {
-    color: #1b4f72;
-}
-h4 {
-    color: #e67e22;
-}
+body { background-color: #f5f7fa; color: #1c1c1c; }
+h2 { color: #1b4f72; }
+h4 { color: #e67e22; }
 .stButton>button {
     background-color: #1abc9c;
     color: white;
@@ -36,22 +29,15 @@ h4 {
 
 # ---------- LOGO ----------
 try:
-    logo = Image.open("logo.png")  # Make sure logo.png is in the same folder
-
-    # Convert image to base64 to embed directly
+    logo = Image.open("logo.png")
     buffered = BytesIO()
     logo.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
-
     st.markdown(
-        f"""
-        <div style='text-align:center; margin-top:10px; margin-bottom:20px;'>
-            <img src="data:image/png;base64,{img_str}" width="180"/>
-        </div>
-        """,
+        f"<div style='text-align:center; margin-top:10px; margin-bottom:20px;'>"
+        f"<img src='data:image/png;base64,{img_str}' width='180'/></div>",
         unsafe_allow_html=True
     )
-
 except:
     st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
@@ -60,101 +46,97 @@ st.markdown("<h2 style='text-align: center;'>Srinivas Institute of Technology</h
 st.markdown("<h4 style='text-align: center;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
-# ---------- CURRENT SEMESTER SGPA ----------
-st.subheader("3rd Semester SGPA Calculator")
-st.markdown("""
-<div style='background-color:#d9f0f0; padding:10px; border-radius:10px; color:#1c1c1c'>
-Enter your marks for each subject:
-</div>
-""", unsafe_allow_html=True)
-
-subjects = {
-    "Mathematics for CS (BCS301)": 4,
-    "Digital Design & CO (BCS302)": 4,
-    "Operating Systems (BCS303)": 4,
-    "Data Structures (BCS304)": 3,
-    "Data Structures Lab (BCSL305)": 1,
-    "OOP with Java (BCS306A)": 3,
-    "Social Connectivity And Responsibility (BSCK307)": 1,
-    "Data Analytics With Excel (BCS358A)": 1
-}
-
-marks_dict = {}
-for subject, credit in subjects.items():
-    marks = st.text_input(f"{subject} (Credits: {credit})", placeholder="Enter marks", key=subject)
-    marks_dict[subject] = marks
-
 # ---------- GRADE FUNCTION ----------
 def calculate_grade_point(marks):
-    if marks >= 90:
-        return 10
-    elif marks >= 80:
-        return 9
-    elif marks >= 70:
-        return 8
-    elif marks >= 60:
-        return 7
-    elif marks >= 50:
-        return 6
-    elif marks >= 40:
-        return 4
-    else:
-        return 0
+    if marks >= 90: return 10
+    elif marks >= 80: return 9
+    elif marks >= 70: return 8
+    elif marks >= 60: return 7
+    elif marks >= 50: return 6
+    elif marks >= 40: return 4
+    else: return 0
 
-# ---------- SGPA CALCULATION ----------
-if st.button("Calculate SGPA"):
-    total_credits = 0
-    total_points = 0
-    all_filled = True
+# ---------- SUBJECTS PER SEM ----------
+sem_subjects = {
+    "3rd": {
+        "Mathematics for CS (BCS301)":4, "Digital Design & CO (BCS302)":4,
+        "Operating Systems (BCS303)":4, "Data Structures (BCS304)":3,
+        "Data Structures Lab (BCSL305)":1, "OOP with Java (BCS306A)":3,
+        "Social Connectivity And Responsibility (BSCK307)":1,
+        "Data Analytics With Excel (BCS358A)":1
+    },
+    "4th": {
+        "Mathematics for AI (BCS401)":4, "Computer Networks (BCS402)":4,
+        "Database Management (BCS403)":4, "Machine Learning Basics (BCS404)":3,
+        "ML Lab (BCSL405)":1, "Web Programming (BCS406A)":3,
+        "Professional Ethics (BSCK407)":1
+    },
+    "5th": {
+        "Data Mining (BCS501)":4, "Deep Learning (BCS502)":4,
+        "NLP (BCS503)":4, "AI Lab (BCSL504)":3,
+        "Big Data Analytics (BCS505A)":3, "Soft Skills (BSCK506)":1
+    },
+    "6th": {
+        "Computer Vision (BCS601)":4, "Reinforcement Learning (BCS602)":4,
+        "Cloud Computing (BCS603)":3, "AI Project Lab (BCSL604)":3,
+        "Entrepreneurship (BSCK605)":1
+    },
+    "7th": {
+        "Advanced ML (BCS701)":4, "Robotics AI (BCS702)":4,
+        "IoT & AI (BCS703)":3, "AI Project Lab 2 (BCSL704)":3
+    },
+    "8th": {
+        "AI Thesis (BCS801)":6, "Internship Evaluation (BCS802)":4
+    }
+}
 
+# ---------- SGPA CALCULATORS ----------
+semester_sgpas = {}
+for sem, subjects in sem_subjects.items():
+    st.subheader(f"{sem} Semester SGPA Calculator")
+    st.markdown(f"<div style='background-color:#d9f0f0; padding:10px; border-radius:10px;'>Enter marks for {sem} semester subjects</div>", unsafe_allow_html=True)
+    
+    marks_dict = {}
     for subject, credit in subjects.items():
-        marks = marks_dict[subject]
-        if marks == "" or marks is None:
-            all_filled = False
-            break
-        try:
-            marks = int(marks)
-            if 0 <= marks <= 100:
-                gp = calculate_grade_point(marks)
-                total_credits += credit
-                total_points += gp * credit
-            else:
-                st.warning(f"⚠️ Marks for {subject} must be between 0 and 100")
+        marks = st.text_input(f"{subject} (Credits:{credit})", placeholder="Enter marks", key=f"{sem}_{subject}")
+        marks_dict[subject] = marks
+    
+    if st.button(f"Calculate SGPA - {sem} Semester", key=f"btn_{sem}"):
+        total_credits = 0
+        total_points = 0
+        all_filled = True
+        for subject, credit in subjects.items():
+            marks = marks_dict[subject]
+            if marks == "" or marks is None:
                 all_filled = False
                 break
-        except:
-            st.warning(f"⚠️ Please enter valid number for {subject}")
-            all_filled = False
-            break
+            try:
+                marks = int(marks)
+                if 0 <= marks <= 100:
+                    gp = calculate_grade_point(marks)
+                    total_credits += credit
+                    total_points += gp * credit
+                else:
+                    st.warning(f"⚠️ Marks for {subject} must be 0-100")
+                    all_filled = False
+                    break
+            except:
+                st.warning(f"⚠️ Enter valid marks for {subject}")
+                all_filled = False
+                break
+        if all_filled and total_credits>0:
+            sgpa = total_points/total_credits
+            semester_sgpas[sem] = sgpa
+            st.success(f"🎉 {sem} Semester SGPA: {round(sgpa,2)}")
+        else:
+            st.warning("⚠️ Please fill all marks correctly.")
 
-    if all_filled and total_credits > 0:
-        sgpa = total_points / total_credits
-        st.success(f"🎉 Your SGPA is: {round(sgpa, 2)}")
-    elif total_credits == 0:
-        st.warning("⚠️ Please enter marks to calculate SGPA.")
-
-# ---------- CGPA ----------
+# ---------- FINAL CGPA ----------
 st.markdown("<hr>", unsafe_allow_html=True)
-st.subheader("CGPA Calculator (3 Semesters Average)")
-st.markdown("""
-<div style='background-color:#fff4d9; padding:10px; border-radius:10px; color:#1c1c1c'>
-Enter SGPA of 1st, 2nd, and 3rd semester:
-</div>
-""", unsafe_allow_html=True)
-
-sgpa1 = st.text_input("Enter 1st Semester SGPA", placeholder="SGPA 1", key="cgpa1")
-sgpa2 = st.text_input("Enter 2nd Semester SGPA", placeholder="SGPA 2", key="cgpa2")
-sgpa3 = st.text_input("Enter 3rd Semester SGPA", placeholder="SGPA 3", key="cgpa3")
-
-if st.button("Calculate CGPA"):
-    sgpa_list = [sgpa1, sgpa2, sgpa3]
-    
-    if all(sgpa != "" for sgpa in sgpa_list):
-        try:
-            sgpa_list = [float(sgpa) for sgpa in sgpa_list]
-            cgpa = sum(sgpa_list) / len(sgpa_list)
-            st.success(f"🎉 Your CGPA after 3 semesters is: {round(cgpa, 2)}")
-        except:
-            st.warning("⚠️ Please enter valid SGPA values.")
+st.subheader("Final CGPA Calculator")
+if st.button("Calculate Final CGPA"):
+    if semester_sgpas:
+        cgpa = sum(semester_sgpas.values())/len(semester_sgpas)
+        st.success(f"🎉 Your final CGPA after {len(semester_sgpas)} semesters: {round(cgpa,2)}")
     else:
-        st.warning("⚠️ Please enter all SGPA values.")
+        st.warning("⚠️ Please calculate at least one semester SGPA first.")
