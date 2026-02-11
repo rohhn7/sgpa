@@ -106,7 +106,7 @@ if st.button("Calculate CGPA"):
         try:
             sgpa_list = [float(sgpa) for sgpa in sgpa_list]
             cgpa = sum(sgpa_list) / len(sgpa_list)
-            st.success(f"Your CGPA after 3 semesters is: {round(cgpa, 2)}")
+            st.success(f"Your CGPA after 3 semesters is: {round(cgpa, 2)}🎉")
         except:
             st.warning("Please enter valid SGPA values.")
     else:
