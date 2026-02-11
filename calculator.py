@@ -20,7 +20,6 @@ h4 { color: #e67e22; }
     border-radius:10px;
     font-size: 16px;
 }
-/* Ensure the number input height matches your design */
 .stNumberInput>div>div>input {
     height: 35px;
     font-size: 16px;
@@ -91,75 +90,65 @@ sem_subjects = {
     }
 }
 
-# ---------- SEMESTER DROPDOWN ----------
+# ---------- SGPA CALCULATOR SECTION ----------
 selected_sem = st.selectbox("Select Semester to calculate SGPA", options=["3","4","5","6","7","8"])
 st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
-
-# ---------- INPUT MARKS ----------
 marks_dict = {}
+
 for subject, credit in subjects.items():
-    # Using number_input with value=None keeps it blank and triggers numeric keypad
     marks = st.number_input(
         f"{subject} (Credits:{credit})", 
-        min_value=0, 
-        max_value=100, 
-        value=None, 
-        step=1, 
-        placeholder="Enter marks", 
-        key=f"{selected_sem}_{subject}"
+        min_value=0, max_value=100, value=None, step=1,
+        placeholder="Enter marks", key=f"marks_{selected_sem}_{subject}"
     )
     marks_dict[subject] = marks
 
-# ---------- CALCULATE SGPA ----------
 if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     total_credits = 0
     total_points = 0
     all_filled = True
-    
     for subject, credit in subjects.items():
-        marks = marks_dict[subject]
-        if marks is None:
+        val = marks_dict[subject]
+        if val is None:
             all_filled = False
             break
-        
-        gp = calculate_grade_point(marks)
         total_credits += credit
-        total_points += gp * credit
-
-    if all_filled and total_credits > 0:
+        total_points += calculate_grade_point(val) * credit
+    
+    if all_filled:
         sgpa = total_points / total_credits
-        st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa, 2)}")
+        st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
     else:
-        st.warning("⚠️ Please fill all marks correctly.")
+        st.warning("⚠️ Please fill all subject marks.")
 
-# ---------- CGPA SECTION ----------
+# ---------- CGPA CALCULATOR SECTION ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
-# Using columns to make it more mobile-friendly (less vertical scrolling)
-cols = st.columns(2)
+
+# We create the columns first
+col1, col2 = st.columns(2)
+
+# We loop through 1-8 and place them explicitly to maintain order
 for sem in range(1, 9):
-    with cols[sem % 2]:
-        sgpa = st.number_input(
+    # This logic ensures 1, 3, 5, 7 go to col1 and 2, 4, 6, 8 go to col2
+    # Resulting in a visual order of 1, 2 top-to-bottom
+    target_col = col1 if sem % 2 != 0 else col2
+    with target_col:
+        val = st.number_input(
             f"Sem {sem} SGPA", 
-            min_value=0.0, 
-            max_value=10.0, 
-            value=None, 
-            step=0.01, 
-            placeholder="0.00", 
-            key=f"manual_sgpa{sem}"
+            min_value=0.0, max_value=10.0, value=None, step=0.01,
+            placeholder="0.00", key=f"cgpa_input_{sem}"
         )
-        sgpa_inputs[sem] = sgpa
+        sgpa_inputs[sem] = val
 
 if st.button("Calculate Final CGPA"):
-    # Filter out None values to calculate average of entered semesters only
-    sgpa_list = [val for val in sgpa_inputs.values() if val is not None]
-    
-    if sgpa_list:
-        cgpa = sum(sgpa_list) / len(sgpa_list)
-        st.success(f"🎉 Your final CGPA: {round(cgpa, 2)}")
+    valid_values = [v for v in sgpa_inputs.values() if v is not None]
+    if valid_values:
+        final_cgpa = sum(valid_values) / len(valid_values)
+        st.success(f"🎉 Your final CGPA: {round(final_cgpa, 2)}")
     else:
-        st.warning("⚠️ Enter SGPA for at least one semester.")
+        st.warning("⚠️ Please enter at least one Semester SGPA.")
