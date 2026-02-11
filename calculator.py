@@ -6,7 +6,7 @@ st.set_page_config(page_title="SIT AIML SGPA Calculator", layout="centered")
 # ---------- LOGO ----------
 try:
     logo = Image.open("logo.png")
-    col1, col2, col3 = st.columns([1.2, 2, 0.5])
+    col1, col2, col3 = st.columns([1.2, 2, 5])
     with col2:
         st.image(logo, width=180)
 except:
@@ -111,6 +111,7 @@ if st.button("Calculate CGPA"):
             st.warning("Please enter valid SGPA values.")
     else:
         st.warning("Please enter all SGPA values.")
+
 
 
 
