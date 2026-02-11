@@ -96,19 +96,19 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
+# ---------- CUSTOM FUNCTION FOR BLANK NUMERIC INPUT ----------
+def blank_numeric_input(label, key):
+    # Blank by default, but hints numeric keyboard on mobile
+    return st.text_input(label=label, placeholder="Enter marks", key=key)
+
 # ---------- INPUT MARKS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    # Use text_input so it starts blank
-    marks = st.text_input(
-        label=f"{subject} (Credits:{credit})",
-        placeholder="Enter marks",
-        key=f"{selected_sem}_{subject}"
-    )
+    marks = blank_numeric_input(f"{subject} (Credits:{credit})", f"{selected_sem}_{subject}")
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
-semester_sgpas = {}  # store calculated SGPA
+semester_sgpas = {}
 if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     total_credits = 0
     total_points = 0
@@ -145,11 +145,7 @@ st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
 for sem in range(1,9):
-    sgpa = st.text_input(
-        label=f"{sem} Semester SGPA",
-        placeholder=f"Enter SGPA for Sem {sem}",
-        key=f"manual_sgpa{sem}"
-    )
+    sgpa = blank_numeric_input(f"{sem} Semester SGPA", f"manual_sgpa{sem}")
     sgpa_inputs[sem] = sgpa
 
 if st.button("Calculate Final CGPA"):
