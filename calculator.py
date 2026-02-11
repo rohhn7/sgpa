@@ -34,15 +34,12 @@ h4 {
 
 # ---------- LOGO ----------
 try:
-    logo = Image.open("logo.png")
-    st.markdown(
-        f"""
-        <div style='text-align:center; margin-top:10px; margin-bottom:20px;'>
-            <img src='logo.png' width='180'>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    logo = Image.open("logo.png")  # Make sure logo.png is in the same folder
+    # Use columns to center the logo
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        st.image(logo, width=180)
+    st.markdown("<br>", unsafe_allow_html=True)  # spacing below logo
 except:
     st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
