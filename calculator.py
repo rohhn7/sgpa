@@ -100,21 +100,19 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
-# ---------- HELPER FUNCTION FOR BLANK NUMERIC INPUT ----------
-def blank_number_input(label, key):
-    # Use text_input + validate manually to allow blank input
-    value = st.text_input(label=label, placeholder="Enter marks", key=key)
-    # Keep only numbers if user types anything
-    if value and not value.isdigit():
-        st.session_state[key] = ''.join(filter(str.isdigit, value))
-        value = st.session_state[key]
-    return value
+# ---------- HTML NUMBER INPUT (BLANK + NUMERIC KEYBOARD + NO ZERO) ----------
+def html_number_input(label, key, max_value=100):
+    st.markdown(f"""
+    <input id="{key}" type="number" inputmode="numeric" pattern="[1-9][0-9]*" 
+    placeholder="Enter marks (1-{max_value})" max="{max_value}" style="height:35px; font-size:16px; width:100%; border-radius:5px; padding:5px; margin-bottom:10px;">
+    """, unsafe_allow_html=True)
+    return st.text_input(label="", key=f"{key}_hidden")
 
 # ---------- SGPA INPUTS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    marks = blank_number_input(f"{subject} (Credits:{credit})", f"{selected_sem}_{subject}")
-    marks_dict[subject] = marks
+    # HTML input will appear blank and numeric keyboard on mobile
+    marks_dict[subject] = html_number_input(f"{subject} (Credits:{credit})", f"{selected_sem}_{subject}")
 
 # ---------- CALCULATE SGPA ----------
 semester_sgpas = {}
@@ -123,8 +121,8 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     total_points = 0
     all_filled = True
     for subject, credit in subjects.items():
-        marks = marks_dict[subject]
-        if marks.strip() == "" or marks == "0":
+        marks = marks_dict[subject].strip()
+        if marks == "" or marks == "0":
             all_filled = False
             break
         try:
@@ -154,13 +152,13 @@ st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
 for sem in range(1,9):
-    sgpa = blank_number_input(f"{sem} Semester SGPA", f"manual_sgpa{sem}")
-    sgpa_inputs[sem] = sgpa
+    sgpa_inputs[sem] = html_number_input(f"{sem} Semester SGPA", f"manual_sgpa{sem}", max_value=10)
 
 if st.button("Calculate Final CGPA"):
     sgpa_list = []
     for sem, sgpa in sgpa_inputs.items():
-        if sgpa.strip() != "" and sgpa != "0":
+        sgpa = sgpa.strip()
+        if sgpa != "" and sgpa != "0":
             try:
                 sgpa_list.append(float(sgpa))
             except:
