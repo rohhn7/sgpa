@@ -1,24 +1,60 @@
 import streamlit as st
 from PIL import Image
 
+# ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA Calculator", layout="centered")
+
+# ---------- CUSTOM CSS ----------
+st.markdown("""
+<style>
+body {
+    background-color: #f5f5f5;
+}
+h2 {
+    color: #2c3e50;
+}
+h4 {
+    color: #e67e22;
+}
+.stButton>button {
+    background-color: #1abc9c;
+    color: white;
+    height: 40px;
+    width: 100%;
+    border-radius:10px;
+    font-size: 16px;
+}
+.stTextInput>div>div>input {
+    height: 35px;
+    font-size: 16px;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ---------- LOGO ----------
 try:
     logo = Image.open("logo.png")
-    col1, col2, col3 = st.columns([4.5, 2, 1])
-    with col2:
-        st.image(logo, width=180)
+    st.markdown(
+        f"""
+        <div style='text-align: center; margin-bottom:20px;'>
+            <img src='logo.png' width='180'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 except:
     st.warning("Logo file not found")
 
+# ---------- TITLE ----------
 st.markdown("<h2 style='text-align: center;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
 
-st.title("SGPA & CGPA Calculator")
-st.subheader("3rd Semester - 2022 Scheme")
+st.markdown("<hr>", unsafe_allow_html=True)
 
-# ---------- SUBJECTS ----------
+# ---------- CURRENT SEMESTER SGPA ----------
+st.subheader("3rd Semester SGPA Calculator")
+st.markdown("<div style='background-color:#d6eaf8; padding:10px; border-radius:10px'>Enter your marks for each subject:</div>", unsafe_allow_html=True)
+
 subjects = {
     "Mathematics for CS (BCS301)": 4,
     "Digital Design & CO (BCS302)": 4,
@@ -30,16 +66,9 @@ subjects = {
     "Data Analytics With Excel (BCS358A)": 1
 }
 
-st.markdown("### Enter Marks for SGPA")
-
 marks_dict = {}
-
 for subject, credit in subjects.items():
-    marks = st.text_input(
-        f"{subject} (Credits: {credit})",
-        placeholder="Enter marks",
-        key=subject
-    )
+    marks = st.text_input(f"{subject} (Credits: {credit})", placeholder="Enter marks", key=subject)
     marks_dict[subject] = marks
 
 # ---------- GRADE FUNCTION ----------
@@ -77,23 +106,24 @@ if st.button("Calculate SGPA"):
                 total_credits += credit
                 total_points += gp * credit
             else:
-                st.warning(f"Marks for {subject} must be between 0 and 100")
+                st.warning(f"⚠️ Marks for {subject} must be between 0 and 100")
                 all_filled = False
                 break
         except:
-            st.warning(f"Please enter valid number for {subject}")
+            st.warning(f"⚠️ Please enter valid number for {subject}")
             all_filled = False
             break
 
     if all_filled and total_credits > 0:
         sgpa = total_points / total_credits
-        st.success(f"Your SGPA is: {round(sgpa, 2)}")
+        st.success(f"🎉 Your SGPA is: {round(sgpa, 2)}")
     elif total_credits == 0:
-        st.warning("Please enter marks to calculate SGPA.")
+        st.warning("⚠️ Please enter marks to calculate SGPA.")
 
-# ---------- CGPA SECTION (Simple Average) ----------
-st.markdown("---")
-st.subheader("CGPA Calculator (Simple Average)")
+# ---------- CGPA CALCULATOR ----------
+st.markdown("<hr>", unsafe_allow_html=True)
+st.subheader("CGPA Calculator (3 Semesters Average)")
+st.markdown("<div style='background-color:#fcf3cf; padding:10px; border-radius:10px'>Enter SGPA of 1st, 2nd, and 3rd semester:</div>", unsafe_allow_html=True)
 
 sgpa1 = st.text_input("Enter 1st Semester SGPA", placeholder="SGPA 1", key="cgpa1")
 sgpa2 = st.text_input("Enter 2nd Semester SGPA", placeholder="SGPA 2", key="cgpa2")
@@ -106,14 +136,8 @@ if st.button("Calculate CGPA"):
         try:
             sgpa_list = [float(sgpa) for sgpa in sgpa_list]
             cgpa = sum(sgpa_list) / len(sgpa_list)
-            st.success(f"Your CGPA after 3 semesters is: {round(cgpa, 2)}🎉")
+            st.success(f"🎉 Your CGPA after 3 semesters is: {round(cgpa, 2)}")
         except:
-            st.warning("Please enter valid SGPA values.")
+            st.warning("⚠️ Please enter valid SGPA values.")
     else:
-        st.warning("Please enter all SGPA values.")
-
-
-
-
-
-
+        st.warning("⚠️ Please enter all SGPA values.")
