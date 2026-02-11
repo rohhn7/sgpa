@@ -20,18 +20,9 @@ h4 { color: #e67e22; }
     border-radius:10px;
     font-size: 16px;
 }
-input[type=number] {
+.stTextInput>div>div>input {
     height: 35px;
     font-size: 16px;
-    width: 100%;
-    border-radius:5px;
-    padding:5px;
-    margin-bottom:10px;
-}
-.subject-label {
-    font-weight: bold;
-    margin-bottom: 3px;
-    display: block;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -105,14 +96,13 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
-# ---------- SGPA INPUTS ----------
+# ---------- SGPA INPUTS (text_input to allow blank + numeric keyboard) ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    marks = st.number_input(f"{subject} (Credits:{credit})",
-                            min_value=1,
-                            max_value=100,
-                            step=1,
-                            key=f"{selected_sem}_{subject}_num")  # UNIQUE KEY
+    marks = st.text_input(f"{subject} (Credits:{credit})",
+                         placeholder="Enter marks",
+                         key=f"{selected_sem}_{subject}_num",
+                         input_mode="numeric")  # numeric keyboard
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
@@ -122,13 +112,23 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     all_filled = True
     for subject, credit in subjects.items():
         marks = marks_dict[subject]
-        if marks < 1:
-            st.warning(f"⚠️ Enter valid marks for {subject} (1-100)")
+        if marks.strip() == "":
+            st.warning(f"⚠️ Enter marks for {subject}")
             all_filled = False
             break
-        gp = calculate_grade_point(marks)
-        total_credits += credit
-        total_points += gp * credit
+        try:
+            marks_int = int(marks)
+            if marks_int < 1 or marks_int > 100:
+                st.warning(f"⚠️ Marks for {subject} must be 1-100")
+                all_filled = False
+                break
+            gp = calculate_grade_point(marks_int)
+            total_credits += credit
+            total_points += gp * credit
+        except:
+            st.warning(f"⚠️ Enter valid number for {subject}")
+            all_filled = False
+            break
     if all_filled and total_credits > 0:
         sgpa = total_points / total_credits
         st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
@@ -137,19 +137,29 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator")
 
+cgpa_inputs = {}
 for sem in range(1, 9):
-    st.number_input(f"{sem} Semester SGPA",
-                    min_value=1.0,
-                    max_value=10.0,
-                    step=0.01,
-                    key=f"manual_sgpa_{sem}")  # UNIQUE KEY
+    sgpa = st.text_input(f"{sem} Semester SGPA",
+                         placeholder="Enter SGPA",
+                         key=f"manual_sgpa_{sem}",
+                         input_mode="numeric")
+    cgpa_inputs[sem] = sgpa
 
 if st.button("Calculate Final CGPA"):
     sgpa_list = []
-    for sem in range(1, 9):
-        val = st.session_state[f"manual_sgpa_{sem}"]
-        if val >= 1:
-            sgpa_list.append(val)
+    for sem, val in cgpa_inputs.items():
+        if val.strip() != "":
+            try:
+                num = float(val)
+                if num < 1:
+                    st.warning(f"⚠️ SGPA for semester {sem} must be >=1")
+                    sgpa_list = []
+                    break
+                sgpa_list.append(num)
+            except:
+                st.warning(f"⚠️ Enter valid number for semester {sem}")
+                sgpa_list = []
+                break
     if sgpa_list:
         cgpa = sum(sgpa_list)/len(sgpa_list)
         st.success(f"🎉 Your final CGPA: {round(cgpa,2)}")
