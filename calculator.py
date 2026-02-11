@@ -42,7 +42,7 @@ except:
     st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
 # ---------- TITLE ----------
-st.markdown("<h2 style='text-align: center;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center;font-size:28px;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
