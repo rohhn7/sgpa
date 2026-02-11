@@ -129,21 +129,14 @@ st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
 
-# We create the columns first
-col1, col2 = st.columns(2)
-
-# We loop through 1-8 and place them explicitly to maintain order
+# Removed columns to ensure a strict 1-8 vertical order on all devices
 for sem in range(1, 9):
-    # This logic ensures 1, 3, 5, 7 go to col1 and 2, 4, 6, 8 go to col2
-    # Resulting in a visual order of 1, 2 top-to-bottom
-    target_col = col1 if sem % 2 != 0 else col2
-    with target_col:
-        val = st.number_input(
-            f"Sem {sem} SGPA", 
-            min_value=0.0, max_value=10.0, value=None, step=0.01,
-            placeholder="0.00", key=f"cgpa_input_{sem}"
-        )
-        sgpa_inputs[sem] = val
+    val = st.number_input(
+        f"Sem {sem} SGPA", 
+        min_value=0.0, max_value=10.0, value=None, step=0.01,
+        placeholder="Enter SGPA", key=f"cgpa_input_{sem}"
+    )
+    sgpa_inputs[sem] = val
 
 if st.button("Calculate Final CGPA"):
     valid_values = [v for v in sgpa_inputs.values() if v is not None]
