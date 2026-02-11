@@ -3,7 +3,6 @@ import streamlit as st
 from PIL import Image
 import base64
 from io import BytesIO
-import re
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
@@ -12,8 +11,8 @@ st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centere
 st.markdown("""
 <style>
 body { background-color: #f5f7fa; color: #1c1c1c; }
-h2 { color: #1b4f72; font-size: 28px; }
-h4 { color: #e67e22; font-size: 20px; }
+h2 { color: #1b4f72; }
+h4 { color: #e67e22; }
 .stButton>button {
     background-color: #1abc9c;
     color: white;
@@ -22,13 +21,9 @@ h4 { color: #e67e22; font-size: 20px; }
     border-radius:10px;
     font-size: 16px;
 }
-input[type="text"] {
+.stTextInput>div>div>input {
     height: 35px;
     font-size: 16px;
-    border-radius:5px;
-    padding:5px;
-    width: 100%;
-    box-sizing: border-box;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -45,11 +40,11 @@ try:
         unsafe_allow_html=True
     )
 except:
-    st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as this file")
+    st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
 # ---------- TITLE ----------
-st.markdown("<h2 style='text-align: center;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center;font-size:29px;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center;font-size:20px;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ---------- GRADE FUNCTION ----------
@@ -102,49 +97,40 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
-# ---------- FUNCTION FOR NUMERIC INPUT WITH EMPTY START ----------
-def numeric_input(label, key, min_val=0, max_val=100):
-    # HTML input for numeric keyboard on mobile
-    st.markdown(
-        f'<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="{label}" id="{key}" '
-        'style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
-        unsafe_allow_html=True
-    )
-    value = st.text_input("", key=key+"_hidden")
-    if value.strip() == "":
-        return None
-    elif not re.fullmatch(r'\d+', value.strip()):
-        st.warning("⚠️ Only numbers allowed!")
-        return None
-    else:
-        num = int(value.strip())
-        if min_val <= num <= max_val:
-            return num
-        else:
-            st.warning(f"⚠️ Value must be between {min_val} and {max_val}")
-            return None
-
 # ---------- INPUT MARKS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    marks = numeric_input(f"{subject} (Credits: {credit})", f"{selected_sem}_{subject}", 0, 100)
+    marks = st.text_input(f"{subject} (Credits:{credit})", placeholder="Enter marks", key=f"{selected_sem}_{subject}")
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
+semester_sgpas = {}  # store calculated SGPA
 if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     total_credits = 0
     total_points = 0
     all_filled = True
     for subject, credit in subjects.items():
         marks = marks_dict[subject]
-        if marks is None:
+        if marks == "" or marks is None:
             all_filled = False
             break
-        gp = calculate_grade_point(marks)
-        total_credits += credit
-        total_points += gp * credit
+        try:
+            marks = int(marks)
+            if 0 <= marks <= 100:
+                gp = calculate_grade_point(marks)
+                total_credits += credit
+                total_points += gp * credit
+            else:
+                st.warning(f"⚠️ Marks for {subject} must be 0-100")
+                all_filled = False
+                break
+        except:
+            st.warning(f"⚠️ Enter valid marks for {subject}")
+            all_filled = False
+            break
     if all_filled and total_credits>0:
         sgpa = total_points / total_credits
+        semester_sgpas[selected_sem] = sgpa
         st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
     else:
         st.warning("⚠️ Please fill all marks correctly.")
@@ -153,33 +139,21 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator")
 
-def sgpa_input(label, key):
-    st.markdown(
-        f'<input type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" placeholder="{label}" id="{key}" '
-        'style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
-        unsafe_allow_html=True
-    )
-    value = st.text_input("", key=key+"_hidden")
-    if value.strip() == "":
-        return None
-    try:
-        sgpa = float(value.strip())
-        if 0 <= sgpa <= 10:
-            return sgpa
-        else:
-            st.warning("⚠️ SGPA must be between 0 and 10")
-            return None
-    except:
-        st.warning("⚠️ Enter valid numeric SGPA")
-        return None
-
 sgpa_inputs = {}
 for sem in range(1,9):
-    sgpa = sgpa_input(f"{sem} Semester SGPA", f"manual_sgpa{sem}")
+    sgpa = st.text_input(f"{sem} Semester SGPA", placeholder=f"Enter SGPA for Sem {sem}", key=f"manual_sgpa{sem}")
     sgpa_inputs[sem] = sgpa
 
 if st.button("Calculate Final CGPA"):
-    sgpa_list = [sgpa for sgpa in sgpa_inputs.values() if sgpa is not None]
+    sgpa_list = []
+    for sem, sgpa in sgpa_inputs.items():
+        if sgpa.strip() != "":
+            try:
+                sgpa_list.append(float(sgpa))
+            except:
+                st.warning(f"⚠️ Enter valid SGPA for semester {sem}")
+                sgpa_list = []
+                break
     if sgpa_list:
         cgpa = sum(sgpa_list)/len(sgpa_list)
         st.success(f"🎉 Your final CGPA: {round(cgpa,2)}")
