@@ -1,3 +1,4 @@
+
 import streamlit as st
 from PIL import Image
 import base64
@@ -103,7 +104,7 @@ subjects = sem_subjects[selected_sem]
 
 # ---------- FUNCTION FOR NUMERIC INPUT WITH EMPTY START ----------
 def numeric_input(label, key, min_val=0, max_val=100):
-    # HTML input for mobile numeric keyboard
+    # HTML input for numeric keyboard on mobile
     st.markdown(
         f'<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="{label}" id="{key}" '
         'style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
@@ -150,7 +151,7 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
 
 # ---------- CGPA SECTION ----------
 st.markdown("<hr>", unsafe_allow_html=True)
-st.subheader("CGPA Calculator (Manual for all semesters)")
+st.subheader("CGPA Calculator")
 
 def sgpa_input(label, key):
     st.markdown(
