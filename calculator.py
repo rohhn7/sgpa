@@ -21,9 +21,12 @@ h4 { color: #e67e22; font-size: 20px; }
     border-radius:10px;
     font-size: 16px;
 }
-.stTextInput>div>div>input {
+input[type="text"] {
     height: 35px;
     font-size: 16px;
+    border-radius:5px;
+    padding:5px;
+    width: 100%;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -43,8 +46,8 @@ except:
     st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
 
 # ---------- TITLE ----------
-st.markdown("<h2 style='text-align: center;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; font-size:29px;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; font-size:20px;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ---------- GRADE FUNCTION ----------
@@ -97,26 +100,32 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
-# ---------- FUNCTION FOR NUMERIC INPUT ----------
-def get_numeric_input(label, key):
-    value = st.text_input(label, key=key)
+# ---------- FUNCTION FOR NUMERIC INPUT WITH EMPTY START ----------
+def numeric_input(label, key, min_val=0, max_val=100):
+    # Create input box with numeric keyboard on mobile
+    st.markdown(
+        f'<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="{label}" id="{key}" style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
+        unsafe_allow_html=True
+    )
+    # Capture value using text_input
+    value = st.text_input("", key=key+"_hidden")
     if value.strip() == "":
         return None
     elif not re.fullmatch(r'\d+', value.strip()):
         st.warning("⚠️ Only numbers allowed!")
         return None
     else:
-        marks = int(value.strip())
-        if 0 <= marks <= 100:
-            return marks
+        num = int(value.strip())
+        if min_val <= num <= max_val:
+            return num
         else:
-            st.warning("⚠️ Marks must be 0-100")
+            st.warning(f"⚠️ Value must be between {min_val} and {max_val}")
             return None
 
 # ---------- INPUT MARKS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    marks = get_numeric_input(f"{subject} (Credits: {credit})", f"{selected_sem}_{subject}")
+    marks = numeric_input(f"{subject} (Credits: {credit})", f"{selected_sem}_{subject}", 0, 100)
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
@@ -133,7 +142,6 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
         gp = calculate_grade_point(marks)
         total_credits += credit
         total_points += gp * credit
-    
     if all_filled and total_credits>0:
         sgpa = total_points / total_credits
         semester_sgpas[selected_sem] = sgpa
@@ -145,8 +153,12 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator (Manual for all semesters)")
 
-def get_sgpa_input(label, key):
-    value = st.text_input(label, key=key)
+def sgpa_input(label, key):
+    st.markdown(
+        f'<input type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" placeholder="{label}" id="{key}" style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
+        unsafe_allow_html=True
+    )
+    value = st.text_input("", key=key+"_hidden")
     if value.strip() == "":
         return None
     try:
@@ -154,7 +166,7 @@ def get_sgpa_input(label, key):
         if 0 <= sgpa <= 10:
             return sgpa
         else:
-            st.warning("⚠️ SGPA must be 0-10")
+            st.warning("⚠️ SGPA must be between 0 and 10")
             return None
     except:
         st.warning("⚠️ Enter valid numeric SGPA")
@@ -162,7 +174,7 @@ def get_sgpa_input(label, key):
 
 sgpa_inputs = {}
 for sem in range(1,9):
-    sgpa = get_sgpa_input(f"{sem} Semester SGPA", f"manual_sgpa{sem}")
+    sgpa = sgpa_input(f"{sem} Semester SGPA", f"manual_sgpa{sem}")
     sgpa_inputs[sem] = sgpa
 
 if st.button("Calculate Final CGPA"):
