@@ -2,7 +2,6 @@ import streamlit as st
 from PIL import Image
 import base64
 from io import BytesIO
-import re
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
@@ -100,13 +99,13 @@ subjects = sem_subjects[selected_sem]
 # ---------- INPUT MARKS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    # HTML input for numeric keyboard and empty start
-    st.markdown(
-        f'<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Enter marks" '
-        f'id="{selected_sem}_{subject}" style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
-        unsafe_allow_html=True
+    # Keep label like before, numeric input, starts empty (min_value=1)
+    marks = st.number_input(
+        label=f"{subject} (Credits:{credit})",
+        min_value=1, max_value=100, step=1,
+        format="%d",
+        key=f"{selected_sem}_{subject}"
     )
-    marks = st.text_input("", key=f"{selected_sem}_{subject}_hidden")  # hidden capture
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
@@ -117,19 +116,13 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     all_filled = True
     for subject, credit in subjects.items():
         marks = marks_dict[subject]
-        if marks == "" or marks is None:
+        if marks is None:
             all_filled = False
             break
         try:
-            marks = int(marks)
-            if 0 <= marks <= 100:
-                gp = calculate_grade_point(marks)
-                total_credits += credit
-                total_points += gp * credit
-            else:
-                st.warning(f"⚠️ Marks for {subject} must be 0-100")
-                all_filled = False
-                break
+            gp = calculate_grade_point(marks)
+            total_credits += credit
+            total_points += gp * credit
         except:
             st.warning(f"⚠️ Enter valid marks for {subject}")
             all_filled = False
@@ -147,19 +140,18 @@ st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
 for sem in range(1,9):
-    # HTML input for numeric keyboard and empty start
-    st.markdown(
-        f'<input type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" placeholder="Enter SGPA for Sem {sem}" '
-        f'id="manual_sgpa{sem}" style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
-        unsafe_allow_html=True
+    sgpa = st.number_input(
+        label=f"{sem} Semester SGPA",
+        min_value=0.0, max_value=10.0, step=0.01,
+        format="%.2f",
+        key=f"manual_sgpa{sem}"
     )
-    sgpa = st.text_input("", key=f"manual_sgpa{sem}_hidden")
     sgpa_inputs[sem] = sgpa
 
 if st.button("Calculate Final CGPA"):
     sgpa_list = []
     for sem, sgpa in sgpa_inputs.items():
-        if sgpa.strip() != "":
+        if sgpa is not None:
             try:
                 sgpa_list.append(float(sgpa))
             except:
