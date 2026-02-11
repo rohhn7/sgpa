@@ -20,11 +20,6 @@ h4 { color: #e67e22; }
     border-radius:10px;
     font-size: 16px;
 }
-.subject-label {
-    font-weight: bold;
-    margin-bottom: 3px;
-    display: block;
-}
 input[type=number] {
     height: 35px;
     font-size: 16px;
@@ -32,6 +27,11 @@ input[type=number] {
     border-radius:5px;
     padding:5px;
     margin-bottom:10px;
+}
+.subject-label {
+    font-weight: bold;
+    margin-bottom: 3px;
+    display: block;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -105,33 +105,26 @@ st.subheader(f"{selected_sem} Semester SGPA Calculator")
 
 subjects = sem_subjects[selected_sem]
 
-# ---------- FUNCTION TO CREATE HTML NUMBER INPUT ----------
-def html_number_input(subject, credit, key, max_val=100):
-    st.markdown(f'<span class="subject-label">{subject} (Credits:{credit})</span>', unsafe_allow_html=True)
-    html_code = f'''
-    <input type="number" id="{key}" name="{key}" min="1" max="{max_val}" placeholder="Enter marks 1-{max_val}" />
-    '''
-    return st.markdown(html_code, unsafe_allow_html=True)
-
 # ---------- SGPA INPUTS ----------
-st.markdown("### Enter your marks below:")
+marks_dict = {}
 for subject, credit in subjects.items():
-    html_number_input(subject, credit, f"{selected_sem}_{subject}")
+    marks = st.number_input(f"{subject} (Credits:{credit})",
+                            min_value=1,
+                            max_value=100,
+                            step=1,
+                            key=f"{selected_sem}_{subject}_num")  # UNIQUE KEY
+    marks_dict[subject] = marks
 
-st.markdown("⚠️ After entering marks, click the calculate button above and manually read the inputs in Python code.")
-
-# ---------- CALCULATE SGPA BUTTON ----------
+# ---------- CALCULATE SGPA ----------
 if st.button(f"Calculate SGPA for {selected_sem} Semester"):
     total_credits = 0
     total_points = 0
     all_filled = True
     for subject, credit in subjects.items():
-        # read via JS workaround or st.text_input if numeric keyboard needed
-        # In Streamlit, HTML inputs are not directly returned. You can replace with st.number_input:
-        marks = st.number_input(f"{subject} (Credits:{credit})", min_value=1, max_value=100, step=1, key=f"{selected_sem}_num")
-        if marks == 0:
-            all_filled = False
+        marks = marks_dict[subject]
+        if marks < 1:
             st.warning(f"⚠️ Enter valid marks for {subject} (1-100)")
+            all_filled = False
             break
         gp = calculate_grade_point(marks)
         total_credits += credit
@@ -143,13 +136,18 @@ if st.button(f"Calculate SGPA for {selected_sem} Semester"):
 # ---------- CGPA ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator")
+
 for sem in range(1, 9):
-    st.number_input(f"{sem} Semester SGPA", min_value=1.0, max_value=10.0, step=0.01, key=f"manual_sgpa{sem}")
+    st.number_input(f"{sem} Semester SGPA",
+                    min_value=1.0,
+                    max_value=10.0,
+                    step=0.01,
+                    key=f"manual_sgpa_{sem}")  # UNIQUE KEY
 
 if st.button("Calculate Final CGPA"):
     sgpa_list = []
     for sem in range(1, 9):
-        val = st.session_state[f"manual_sgpa{sem}"]
+        val = st.session_state[f"manual_sgpa_{sem}"]
         if val >= 1:
             sgpa_list.append(val)
     if sgpa_list:
