@@ -1,8 +1,8 @@
-
 import streamlit as st
 from PIL import Image
 import base64
 from io import BytesIO
+import re
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
@@ -100,7 +100,13 @@ subjects = sem_subjects[selected_sem]
 # ---------- INPUT MARKS ----------
 marks_dict = {}
 for subject, credit in subjects.items():
-    marks = st.text_input(f"{subject} (Credits:{credit})", placeholder="Enter marks", key=f"{selected_sem}_{subject}")
+    # HTML input for numeric keyboard and empty start
+    st.markdown(
+        f'<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Enter marks" '
+        f'id="{selected_sem}_{subject}" style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
+        unsafe_allow_html=True
+    )
+    marks = st.text_input("", key=f"{selected_sem}_{subject}_hidden")  # hidden capture
     marks_dict[subject] = marks
 
 # ---------- CALCULATE SGPA ----------
@@ -141,7 +147,13 @@ st.subheader("CGPA Calculator")
 
 sgpa_inputs = {}
 for sem in range(1,9):
-    sgpa = st.text_input(f"{sem} Semester SGPA", placeholder=f"Enter SGPA for Sem {sem}", key=f"manual_sgpa{sem}")
+    # HTML input for numeric keyboard and empty start
+    st.markdown(
+        f'<input type="text" inputmode="decimal" pattern="[0-9]*[.]?[0-9]*" placeholder="Enter SGPA for Sem {sem}" '
+        f'id="manual_sgpa{sem}" style="width:100%; height:35px; font-size:16px; border-radius:5px; padding:5px;">',
+        unsafe_allow_html=True
+    )
+    sgpa = st.text_input("", key=f"manual_sgpa{sem}_hidden")
     sgpa_inputs[sem] = sgpa
 
 if st.button("Calculate Final CGPA"):
