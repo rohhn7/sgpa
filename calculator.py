@@ -1,82 +1,107 @@
 import streamlit as st
 from PIL import Image
+import base64
+from io import BytesIO
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML Portal", page_icon="🎓", layout="centered")
 
-# ---------- THE "FORCE CENTER" CSS ----------
-st.markdown("""
+# ---------- HELPER FOR LOGO ENCODING ----------
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+# ---------- THE "TOTAL FIX" CSS ----------
+st.markdown(f"""
 <style>
-    /* 1. CENTER LOGO FORCIBLY ON ALL DEVICES */
-    .stApp [data-testid="stVerticalBlock"] > div:first-child {
+    /* 1. CENTER LOGO & HEADER REGARDLESS OF SCREEN */
+    .stApp {{
+        background-color: #0e1117;
+    }}
+    
+    .main-header {{
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         align-items: center;
-    }
-
-    /* Target the image container directly */
-    [data-testid="stImage"] {
-        display: flex !important;
-        justify-content: center !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-
-    /* 2. TEXT HEADER ALIGNMENT */
-    .centered-header {
+        justify-content: center;
         text-align: center;
         width: 100%;
-        margin-top: -10px;
-    }
+        margin-top: 20px;
+    }}
 
-    /* 3. VISIBILITY: BOLD WHITE LABELS */
-    label p {
-        color: #FFFFFF !important;
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        margin-bottom: 5px !important;
-    }
+    .logo-img {{
+        width: 140px;
+        height: auto;
+        border-radius: 10px;
+    }}
 
-    /* 4. BUTTON & CARD STYLING */
-    .stButton>button {
+    /* 2. SOFTEN THE BRIGHTNESS (Labels and Header) */
+    .college-title {{
+        color: #e2e8f0 !important; /* Soft white/grey */
+        margin-top: 15px;
+        margin-bottom: 0px;
+        font-weight: 700;
+    }}
+
+    .dept-title {{
+        color: #10b981 !important; /* Emerald Green */
+        font-weight: 600;
+        font-size: 1.1rem;
+        opacity: 0.85; /* Soften the green */
+        margin-top: 5px;
+    }}
+
+    /* Target the input labels to make them light/soft grey instead of bright white */
+    label p {{
+        color: #94a3b8 !important; /* Soft Slate Grey */
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 2px !important;
+    }}
+
+    /* 3. BUTTONS & CARDS */
+    .stButton>button {{
         width: 100%;
-        height: 55px;
-        border-radius: 12px;
+        height: 50px;
         background: #059669;
+        border-radius: 10px;
         color: white;
         font-weight: bold;
-        border: none;
-        font-size: 1.1rem;
-    }
+    }}
 
-    .result-card {
+    .result-card {{
         background-color: #1e293b;
         border-radius: 15px;
-        padding: 25px;
+        padding: 20px;
         text-align: center;
-        border: 2px solid #059669;
+        border: 1px solid #334155;
         margin-top: 20px;
-    }
+    }}
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- CENTERED LOGO ----------
-# Using a container-less approach to avoid column stacking issues on mobile
+# ---------- HEADER SECTION (INJECTED HTML) ----------
 try:
-    st.image("logo.png", width=160)
+    img_base64 = get_base64_of_bin_file("logo.png")
+    st.markdown(f"""
+        <div class="main-header">
+            <img src="data:image/png;base64,{img_base64}" class="logo-img">
+            <h2 class="college-title">Srinivas Institute of Technology</h2>
+            <p class="dept-title">Artificial Intelligence & Machine Learning</p>
+            <hr style="width: 80%; border-color: #334155; opacity: 0.3;">
+        </div>
+    """, unsafe_allow_html=True)
 except:
-    st.markdown("<h1 style='text-align:center;'>🎓</h1>", unsafe_allow_html=True)
+    st.markdown("""
+        <div class="main-header">
+            <h1 style="color:white;">🎓</h1>
+            <h2 class="college-title">Srinivas Institute of Technology</h2>
+            <p class="dept-title">Artificial Intelligence & Machine Learning</p>
+        </div>
+    """, unsafe_allow_html=True)
 
-# ---------- CENTERED TEXT ----------
-st.markdown("""
-    <div class='centered-header'>
-        <h2 style='color: white; margin: 0;'>Srinivas Institute of Technology</h2>
-        <p style='color: #10b981; font-weight: 800; font-size: 1.2rem;'>Artificial Intelligence & Machine Learning</p>
-        <hr style='border-color: #334155; margin-top: 10px;'>
-    </div>
-""", unsafe_allow_html=True)
-
-# ---------- DATA ----------
+# ---------- CURRICULUM DATA ----------
 sem_subjects = {
     "3rd Semester": {
         "Mathematics for Computer Science (BCS301)": 4, "Digital Design & CO (BCS302)": 4,
@@ -112,7 +137,7 @@ def get_gp(marks):
     elif marks >= 40: return 4
     else: return 0
 
-# ---------- MAIN INTERFACE ----------
+# ---------- UI TABS ----------
 tab1, tab2 = st.tabs(["📊 SGPA Calculator", "📈 CGPA Calculator"])
 
 with tab1:
@@ -121,7 +146,6 @@ with tab1:
     
     marks_input = {}
     for sub, credit in current_subjects.items():
-        # PLACEHOLDER: Enter the marks
         marks_input[sub] = st.number_input(
             f"{sub} (Cr: {credit})", 
             min_value=0, max_value=100, value=None, step=1,
@@ -145,11 +169,8 @@ with tab1:
             """, unsafe_allow_html=True)
 
 with tab2:
-    st.markdown("<p style='color: white; font-weight: bold;'>Enter SGPA for each Semester:</p>", unsafe_allow_html=True)
     cgpa_list = []
-    
     for i in range(1, 9):
-        # PLACEHOLDER: 0.00
         val = st.number_input(
             f"Semester {i} SGPA", 
             min_value=0.0, max_value=10.0, value=None, step=0.01,
