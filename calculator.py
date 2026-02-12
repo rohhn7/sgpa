@@ -26,7 +26,7 @@ st.markdown(f"""
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify(content: center;
+        justify-content: center;
         text-align: center;
         width: 100%;
         padding-top: 10px;
@@ -94,7 +94,6 @@ st.markdown(f"""
         padding: 20px;
         border: 1px solid #334155;
         margin-top: 20px;
-        /* UPDATED: Center alignment logic */
         display: flex;
         flex-direction: column;
         align-items: center;
