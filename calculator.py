@@ -13,14 +13,15 @@ def get_base64_of_bin_file(bin_file):
     except:
         return None
 
-# ---------- THE REFINED CSS ----------
+# ---------- THE PERFECT CENTER CSS ----------
 st.markdown(f"""
 <style>
-    /* 1. BACKGROUND & LAYOUT */
+    /* 1. APP BACKGROUND */
     .stApp {{
         background-color: #0e1117;
     }}
     
+    /* 2. EXACT CENTER STACKING (Logo -> Title -> Dept) */
     .main-header {{
         display: flex;
         flex-direction: column;
@@ -28,44 +29,54 @@ st.markdown(f"""
         justify-content: center;
         text-align: center;
         width: 100%;
-        margin-top: 5px;
+        padding-top: 10px;
     }}
 
     .logo-img {{
-        width: 120px;
+        width: 110px;
         height: auto;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }}
 
-    /* 2. HEADING SIZE (Single-line fix) */
     .college-title {{
         color: #ffffff !important; 
         margin: 0px;
         font-weight: 600;
         font-size: 1.3rem !important;
         white-space: nowrap;
+        line-height: 1.2;
     }}
 
     .dept-title {{
         color: #10b981 !important; 
         font-weight: 500;
         font-size: 0.9rem;
-        margin-top: 4px;
-        opacity: 0.9;
+        margin-top: 6px;
+        margin-bottom: 15px;
+        opacity: 0.85;
     }}
 
-    /* 3. SUBJECT NAMES & CREDITS (THIN WHITE) */
-    /* Changed weight from 700 (bold) to 400 (thin/regular) */
+    /* 3. THIN WHITE SUBJECT LABELS */
     label p {{
         color: #ffffff !important; 
         font-size: 0.95rem !important;
         font-weight: 400 !important; 
         letter-spacing: 0.4px;
-        margin-bottom: 1px !important;
-        opacity: 0.95;
+        opacity: 0.9;
     }}
 
-    /* 4. BUTTONS & CARDS */
+    /* 4. SOFT PLACEHOLDER TEXT (Enter the marks / 0.00) */
+    ::placeholder {{
+        color: rgba(255, 255, 255, 0.3) !important; /* Very light/faint white */
+    }}
+    
+    /* Target the inner input text for Streamlit number inputs */
+    input::placeholder {{
+        color: rgba(255, 255, 255, 0.3) !important;
+        font-style: italic;
+    }}
+
+    /* 5. BUTTONS & RESULT CARDS */
     .stButton>button {{
         width: 100%;
         height: 52px;
@@ -74,6 +85,7 @@ st.markdown(f"""
         color: white;
         font-weight: 600;
         border: none;
+        margin-top: 10px;
     }}
 
     .result-card {{
@@ -93,17 +105,17 @@ if logo_base64:
     st.markdown(f"""
         <div class="main-header">
             <img src="data:image/png;base64,{logo_base64}" class="logo-img">
-            <h2 class="college-title">Srinivas Institute of Technology</h2>
-            <p class="dept-title">Artificial Intelligence & Machine Learning</p>
-            <hr style="width: 100%; border-color: #334155; opacity: 0.2; margin-top: 12px;">
+            <div class="college-title">Srinivas Institute of Technology</div>
+            <div class="dept-title">Artificial Intelligence & Machine Learning</div>
+            <hr style="width: 100%; border-color: #334155; opacity: 0.2; margin: 5px 0 20px 0;">
         </div>
     """, unsafe_allow_html=True)
 else:
     st.markdown("""
         <div class="main-header">
-            <h1 style="color:white; font-size: 2.5rem; margin-bottom:0;">🎓</h1>
-            <h2 class="college-title">Srinivas Institute of Technology</h2>
-            <p class="dept-title">Artificial Intelligence & Machine Learning</p>
+            <h1 style="color:white; font-size: 2.5rem; margin:0;">🎓</h1>
+            <div class="college-title">Srinivas Institute of Technology</div>
+            <div class="dept-title">Artificial Intelligence & Machine Learning</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -169,7 +181,7 @@ with tab1:
             
             st.markdown(f"""
                 <div class='result-card'>
-                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>SGPA</p>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>SEMESTER RESULT</p>
                     <h1 style='color:#10b981; font-size:3.5rem; margin:0;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
@@ -192,10 +204,9 @@ with tab2:
             st.balloons()
             st.markdown(f"""
                 <div class='result-card' style='border-color:white;'>
-                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>CGPA</p>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>FINAL GRADUATION CGPA</p>
                     <h1 style='color:white; font-size:3.5rem; margin:0;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
         else:
             st.warning("⚠️ Enter at least one Semester SGPA.")
-
