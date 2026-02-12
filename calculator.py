@@ -13,7 +13,7 @@ def get_base64_of_bin_file(bin_file):
     except:
         return None
 
-# ---------- THE UPDATED CSS ----------
+# ---------- THE PERFECT CENTER CSS ----------
 st.markdown(f"""
 <style>
     /* 1. APP BACKGROUND */
@@ -21,12 +21,12 @@ st.markdown(f"""
         background-color: #0e1117;
     }}
     
-    /* 2. HEADER STYLING */
+    /* 2. EXACT CENTER STACKING (Logo -> Title -> Dept) */
     .main-header {{
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify(content: center;
         text-align: center;
         width: 100%;
         padding-top: 10px;
@@ -56,7 +56,7 @@ st.markdown(f"""
         opacity: 0.85;
     }}
 
-    /* 3. INPUT LABELS */
+    /* 3. THIN WHITE SUBJECT LABELS */
     label p {{
         color: #ffffff !important; 
         font-size: 0.95rem !important;
@@ -65,7 +65,18 @@ st.markdown(f"""
         opacity: 0.9;
     }}
 
-    /* 4. BUTTONS */
+    /* 4. SOFT PLACEHOLDER TEXT (Enter the marks / 0.00) */
+    ::placeholder {{
+        color: rgba(255, 255, 255, 0.3) !important; /* Very light/faint white */
+    }}
+    
+    /* Target the inner input text for Streamlit number inputs */
+    input::placeholder {{
+        color: rgba(255, 255, 255, 0.3) !important;
+        font-style: italic;
+    }}
+
+    /* 5. BUTTONS & RESULT CARDS */
     .stButton>button {{
         width: 100%;
         height: 52px;
@@ -77,34 +88,23 @@ st.markdown(f"""
         margin-top: 10px;
     }}
 
-    /* 5. PERFECT CENTER RESULT CARD */
     .result-card {{
         background-color: #1e293b;
         border-radius: 15px;
-        padding: 25px;
+        padding: 20px;
+        border: 1px solid #334155;
+        margin-top: 20px;
+        /* UPDATED: Center alignment logic */
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
-        border: 1px solid #334155;
-        margin-top: 20px;
     }}
-
-    .result-label {{
-        color: #94a3b8; 
-        font-weight: bold; 
-        font-size: 0.85rem;
-        margin-bottom: 8px;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-    }}
-
-    .result-value {{
-        margin: 0px !important;
-        padding: 0px !important;
-        line-height: 1.1;
-        font-weight: 700;
+    
+    .result-card h1, .result-card p {{
+        margin: 0 !important;
+        padding: 0 !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -129,7 +129,7 @@ else:
         </div>
     """, unsafe_allow_html=True)
 
-# ---------- DATA & LOGIC ----------
+# ---------- CURRICULUM DATA ----------
 sem_subjects = {
     "3rd Semester": {
         "Mathematics for Computer Science (BCS301)": 4, "Digital Design & CO (BCS302)": 4,
@@ -177,7 +177,7 @@ with tab1:
         marks_input[sub] = st.number_input(
             f"{sub} (Cr: {credit})", 
             min_value=0, max_value=100, value=None, step=1,
-            placeholder="Enter marks",
+            placeholder="Enter the marks",
             key=f"sgpa_in_{sub}"
         )
 
@@ -191,19 +191,16 @@ with tab1:
             
             st.markdown(f"""
                 <div class='result-card'>
-                    <div class='result-label'>SGPA</div>
-                    <h1 class='result-value' style='color:#10b981; font-size:3.5rem;'>{res_sgpa:.2f}</h1>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>SGPA</p>
+                    <h1 style='color:#10b981; font-size:3.5rem;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
 
 with tab2:
     cgpa_list = []
-    # Using 2 columns to make the input list more compact
-    col1, col2 = st.columns(2)
     for i in range(1, 9):
-        target_col = col1 if i % 2 != 0 else col2
-        val = target_col.number_input(
-            f"Sem {i} SGPA", 
+        val = st.number_input(
+            f"Semester {i} SGPA", 
             min_value=0.0, max_value=10.0, value=None, step=0.01,
             placeholder="0.00",
             key=f"cgpa_sem_in_{i}"
@@ -216,9 +213,9 @@ with tab2:
             final_res = sum(cgpa_list) / len(cgpa_list)
             st.balloons()
             st.markdown(f"""
-                <div class='result-card' style='border-color:#ffffff;'>
-                    <div class='result-label'>CGPA</div>
-                    <h1 class='result-value' style='color:#ffffff; font-size:3.5rem;'>{final_res:.2f}</h1>
+                <div class='result-card' style='border-color:white;'>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>CGPA</p>
+                    <h1 style='color:white; font-size:3.5rem;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
         else:
