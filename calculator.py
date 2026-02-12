@@ -16,12 +16,10 @@ def get_base64_of_bin_file(bin_file):
 # ---------- THE FINAL CENTERED CSS ----------
 st.markdown(f"""
 <style>
-    /* 1. APP BACKGROUND */
     .stApp {{
         background-color: #0e1117;
     }}
     
-    /* 2. HEADER SECTION */
     .main-header {{
         display: flex;
         flex-direction: column;
@@ -56,7 +54,6 @@ st.markdown(f"""
         opacity: 0.85;
     }}
 
-    /* 3. INPUT LABELS */
     label p {{
         color: #ffffff !important; 
         font-size: 0.95rem !important;
@@ -65,7 +62,6 @@ st.markdown(f"""
         opacity: 0.9;
     }}
 
-    /* 4. PLACEHOLDER ITALICS FIX */
     ::placeholder {{
         color: rgba(255, 255, 255, 0.3) !important;
         font-style: italic !important;
@@ -76,7 +72,6 @@ st.markdown(f"""
         font-style: italic !important;
     }}
 
-    /* 5. BUTTONS */
     .stButton>button {{
         width: 100%;
         height: 52px;
@@ -88,7 +83,6 @@ st.markdown(f"""
         margin-top: 10px;
     }}
 
-    /* 6. THE ABSOLUTE CENTER RESULT CARD */
     .result-card {{
         background-color: #1e293b;
         border-radius: 15px;
@@ -185,6 +179,7 @@ def get_gp(marks):
 # ---------- UI TABS ----------
 tab1, tab2 = st.tabs(["📊 SGPA Calculator", "📈 CGPA Calculator"])
 
+# ---------- SGPA ----------
 with tab1:
     selected_sem = st.selectbox("Select Your Semester", list(sem_subjects.keys()))
     current_subjects = sem_subjects[selected_sem]
@@ -213,6 +208,7 @@ with tab1:
                 </div>
             """, unsafe_allow_html=True)
 
+# ---------- CGPA ----------
 with tab2:
     cgpa_list = []
     for i in range(1, 9):
@@ -237,3 +233,43 @@ with tab2:
             """, unsafe_allow_html=True)
         else:
             st.warning("⚠️ Enter at least one Semester SGPA.")
+
+    # ---------- CHATBOT HELPER ----------
+    st.markdown("---")
+    st.subheader("🤖 CGPA Chatbot Helper")
+
+    target_cgpa = st.number_input(
+        "Enter your Target CGPA",
+        min_value=0.0, max_value=10.0, step=0.01,
+        placeholder="Example: 9.00",
+        key="target_cgpa_input"
+    )
+
+    if st.button("Ask Chatbot"):
+        if target_cgpa is None:
+            st.warning("⚠️ Please enter your target CGPA.")
+        elif not cgpa_list:
+            st.warning("⚠️ Enter your completed semester SGPAs above first.")
+        else:
+            completed_sem = len(cgpa_list)
+            remaining_sem = 8 - completed_sem
+
+            if remaining_sem == 0:
+                st.info("🎓 You have already completed all semesters.")
+            else:
+                current_total = sum(cgpa_list)
+                required_total = target_cgpa * 8
+                needed_total = required_total - current_total
+
+                required_sgpa = needed_total / remaining_sem
+
+                if required_sgpa > 10:
+                    st.error("❌ Target CGPA is not achievable.")
+                elif required_sgpa < 0:
+                    st.success("🎉 You have already achieved your target CGPA!")
+                else:
+                    st.success(
+                        f"📌 To achieve {target_cgpa:.2f} CGPA, "
+                        f"you need an average SGPA of {required_sgpa:.2f} "
+                        f"in the remaining {remaining_sem} semester(s)."
+                    )
