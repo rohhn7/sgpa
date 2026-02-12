@@ -1,21 +1,22 @@
 import streamlit as st
-from PIL import Image
 import base64
-from io import BytesIO
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML Portal", page_icon="🎓", layout="centered")
 
 # ---------- HELPER FOR LOGO ENCODING ----------
 def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+    try:
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except:
+        return None
 
-# ---------- THE "TOTAL FIX" CSS ----------
+# ---------- THE REFINED CSS ----------
 st.markdown(f"""
 <style>
-    /* 1. CENTER LOGO & HEADER REGARDLESS OF SCREEN */
+    /* 1. BACKGROUND & LAYOUT */
     .stApp {{
         background-color: #0e1117;
     }}
@@ -27,47 +28,50 @@ st.markdown(f"""
         justify-content: center;
         text-align: center;
         width: 100%;
-        margin-top: 20px;
-    }}
-
-    .logo-img {{
-        width: 140px;
-        height: auto;
-        border-radius: 10px;
-    }}
-
-    /* 2. SOFTEN THE BRIGHTNESS (Labels and Header) */
-    .college-title {{
-        color: #e2e8f0 !important; /* Soft white/grey */
-        margin-top: 15px;
-        margin-bottom: 0px;
-        font-weight: 700;
-    }}
-
-    .dept-title {{
-        color: #10b981 !important; /* Emerald Green */
-        font-weight: 600;
-        font-size: 1.1rem;
-        opacity: 0.85; /* Soften the green */
         margin-top: 5px;
     }}
 
-    /* Target the input labels to make them light/soft grey instead of bright white */
+    .logo-img {{
+        width: 120px; /* Slightly smaller for mobile fit */
+        height: auto;
+        margin-bottom: 10px;
+    }}
+
+    /* 2. HEADING SIZE ADJUSTMENT (One-line fix for mobile) */
+    .college-title {{
+        color: #ffffff !important; 
+        margin: 0px;
+        font-weight: 700;
+        font-size: 1.35rem !important; /* Reduced for single-line fit */
+        letter-spacing: 0.2px;
+        white-space: nowrap; /* Prevents wrapping */
+    }}
+
+    .dept-title {{
+        color: #10b981 !important; 
+        font-weight: 600;
+        font-size: 0.95rem; /* Balanced with main title */
+        margin-top: 4px;
+        opacity: 0.9;
+    }}
+
+    /* 3. SUBJECT NAMES & CREDITS (BRIGHT WHITE) */
     label p {{
-        color: #94a3b8 !important; /* Soft Slate Grey */
-        font-size: 1rem !important;
-        font-weight: 600 !important;
+        color: #ffffff !important; 
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
         margin-bottom: 2px !important;
     }}
 
-    /* 3. BUTTONS & CARDS */
+    /* 4. BUTTONS & CARDS */
     .stButton>button {{
         width: 100%;
-        height: 50px;
+        height: 52px;
         background: #059669;
-        border-radius: 10px;
+        border-radius: 12px;
         color: white;
         font-weight: bold;
+        border: none;
     }}
 
     .result-card {{
@@ -81,21 +85,21 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- HEADER SECTION (INJECTED HTML) ----------
-try:
-    img_base64 = get_base64_of_bin_file("logo.png")
+# ---------- HEADER SECTION ----------
+logo_base64 = get_base64_of_bin_file("logo.png")
+if logo_base64:
     st.markdown(f"""
         <div class="main-header">
-            <img src="data:image/png;base64,{img_base64}" class="logo-img">
+            <img src="data:image/png;base64,{logo_base64}" class="logo-img">
             <h2 class="college-title">Srinivas Institute of Technology</h2>
             <p class="dept-title">Artificial Intelligence & Machine Learning</p>
-            <hr style="width: 80%; border-color: #334155; opacity: 0.3;">
+            <hr style="width: 100%; border-color: #334155; opacity: 0.2; margin-top: 12px;">
         </div>
     """, unsafe_allow_html=True)
-except:
+else:
     st.markdown("""
         <div class="main-header">
-            <h1 style="color:white;">🎓</h1>
+            <h1 style="color:white; font-size: 2.5rem; margin-bottom:0;">🎓</h1>
             <h2 class="college-title">Srinivas Institute of Technology</h2>
             <p class="dept-title">Artificial Intelligence & Machine Learning</p>
         </div>
@@ -153,9 +157,9 @@ with tab1:
             key=f"sgpa_in_{sub}"
         )
 
-    if st.button("Generate SGPA Result"):
+    if st.button("Calculate SGPA"):
         if None in marks_input.values():
-            st.error("⚠️ Please fill in all marks.")
+            st.error("⚠️ Please fill in all subject marks.")
         else:
             total_p = sum(get_gp(m) * current_subjects[s] for s, m in marks_input.items())
             total_c = sum(current_subjects.values())
@@ -163,7 +167,7 @@ with tab1:
             
             st.markdown(f"""
                 <div class='result-card'>
-                    <p style='color:#94a3b8; font-weight:bold;'>SEMESTER RESULT</p>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.9rem;'>SEMESTER RESULT</p>
                     <h1 style='color:#10b981; font-size:4rem; margin:0;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
@@ -186,7 +190,7 @@ with tab2:
             st.balloons()
             st.markdown(f"""
                 <div class='result-card' style='border-color:white;'>
-                    <p style='color:#94a3b8; font-weight:bold;'>FINAL CGPA</p>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.9rem;'>FINAL GRADUATION CGPA</p>
                     <h1 style='color:white; font-size:4rem; margin:0;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
