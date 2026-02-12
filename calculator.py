@@ -2,59 +2,41 @@ import streamlit as st
 from PIL import Image
 import base64
 from io import BytesIO
-import time
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
 
-# ---------- CUSTOM CSS WITH ANIMATIONS ----------
+# ---------- CUSTOM CSS ----------
 st.markdown("""
 <style>
-/* Background animation */
-body { 
-    background-color: #f5f7fa; 
-    color: #1c1c1c; 
-}
-
-/* Smooth transition for input cards */
-div.stNumberInput {
-    transition: all 0.3s ease-in-out;
-}
-
-div.stNumberInput:hover {
-    transform: scale(1.01);
-}
-
-/* Button hover effects */
-.stButton>button {
-    background: linear-gradient(45deg, #1abc9c, #16a085);
-    color: white;
-    height: 45px;
-    width: 100%;
-    border-radius:12px;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.stButton>button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(26, 188, 156, 0.3);
-}
-
+/* 1. Basic UI Styling */
+body { background-color: #f5f7fa; color: #1c1c1c; }
 h2 { color: #1b4f72; }
 h4 { color: #e67e22; }
-
-/* Animation for the results */
-.result-text {
-    animation: fadeIn 1.5s;
+.stButton>button {
+    background-color: #1abc9c;
+    color: white;
+    height: 40px;
+    width: 100%;
+    border-radius:10px;
+    font-size: 16px;
 }
 
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+/* 2. COMPLETELY HIDE THE "CALCULATING..." BAR & SPINNER */
+/* This prevents the "Calculating..." message from appearing for both SGPA and CGPA */
+[data-testid="stStatusWidget"], 
+.stStatusWidget, 
+div[class*="stStatusWidget"],
+div[data-testid="stHeader"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0px !important;
+}
+
+/* 3. Input field styling */
+.stNumberInput>div>div>input {
+    height: 35px;
+    font-size: 16px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -71,7 +53,7 @@ try:
         unsafe_allow_html=True
     )
 except:
-    st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
+    pass
 
 # ---------- TITLE ----------
 st.markdown("<h2 style='text-align: center;font-size:29px;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
@@ -90,97 +72,39 @@ def calculate_grade_point(marks):
 
 # ---------- SUBJECTS PER SEM ----------
 sem_subjects = {
-    "3": {
-        "Mathematics for CS (BCS301)":4, "Digital Design & CO (BCS302)":4,
-        "Operating Systems (BCS303)":4, "Data Structures (BCS304)":3,
-        "Data Structures Lab (BCSL305)":1, "OOP with Java (BCS306A)":3,
-        "Social Connectivity And Responsibility (BSCK307)":1,
-        "Data Analytics With Excel (BCS358A)":1
-    },
-    "4": {
-        "Mathematics for AI (BCS401)":4, "Computer Networks (BCS402)":4,
-        "Database Management (BCS403)":4, "Machine Learning Basics (BCS404)":3,
-        "ML Lab (BCSL405)":1, "Web Programming (BCS406A)":3,
-        "Professional Ethics (BSCK407)":1
-    },
-    "5": {
-        "Data Mining (BCS501)":4, "Deep Learning (BCS502)":4,
-        "NLP (BCS503)":4, "AI Lab (BCSL504)":3,
-        "Big Data Analytics (BCS505A)":3, "Soft Skills (BSCK506)":1
-    },
-    "6": {
-        "Computer Vision (BCS601)":4, "Reinforcement Learning (BCS602)":4,
-        "Cloud Computing (BCS603)":3, "AI Project Lab (BCSL604)":3,
-        "Entrepreneurship (BSCK605)":1
-    },
-    "7": {
-        "Advanced ML (BCS701)":4, "Robotics AI (BCS702)":4,
-        "IoT & AI (BCS703)":3, "AI Project Lab 2 (BCSL704)":3
-    },
-    "8": {
-        "AI Thesis (BCS801)":6, "Internship Evaluation (BCS802)":4
-    }
+    "3": {"Mathematics for CS (BCS301)":4, "Digital Design & CO (BCS302)":4, "Operating Systems (BCS303)":4, "Data Structures (BCS304)":3, "Data Structures Lab (BCSL305)":1, "OOP with Java (BCS306A)":3, "Social Connectivity And Responsibility (BSCK307)":1, "Data Analytics With Excel (BCS358A)":1},
+    "4": {"Mathematics for AI (BCS401)":4, "Computer Networks (BCS402)":4, "Database Management (BCS403)":4, "Machine Learning Basics (BCS404)":3, "ML Lab (BCSL405)":1, "Web Programming (BCS406A)":3, "Professional Ethics (BSCK407)":1},
+    "5": {"Data Mining (BCS501)":4, "Deep Learning (BCS502)":4, "NLP (BCS503)":4, "AI Lab (BCSL504)":3, "Big Data Analytics (BCS505A)":3, "Soft Skills (BSCK506)":1},
+    "6": {"Computer Vision (BCS601)":4, "Reinforcement Learning (BCS602)":4, "Cloud Computing (BCS603)":3, "AI Project Lab (BCSL604)":3, "Entrepreneurship (BSCK605)":1},
+    "7": {"Advanced ML (BCS701)":4, "Robotics AI (BCS702)":4, "IoT & AI (BCS703)":3, "AI Project Lab 2 (BCSL704)":3},
+    "8": {"AI Thesis (BCS801)":6, "Internship Evaluation (BCS802)":4}
 }
 
-# ---------- SGPA CALCULATOR SECTION ----------
-selected_sem = st.selectbox("Select Semester to calculate SGPA", options=["3","4","5","6","7","8"])
-st.subheader(f"{selected_sem} Semester SGPA Calculator")
-
+# ---------- SGPA CALCULATOR ----------
+selected_sem = st.selectbox("Select Semester", options=["3","4","5","6","7","8"])
 subjects = sem_subjects[selected_sem]
 marks_dict = {}
 
-for subject, credit in subjects.items():
-    marks = st.number_input(
-        f"{subject} (Credits:{credit})", 
-        min_value=0, max_value=100, value=None, step=1,
-        placeholder="Enter marks", key=f"marks_{selected_sem}_{subject}"
-    )
-    marks_dict[subject] = marks
+for sub, crd in subjects.items():
+    marks_dict[sub] = st.number_input(f"{sub} (Cr: {crd})", 0, 100, value=None, key=f"sgpa_{selected_sem}_{sub}")
 
-if st.button(f"Calculate SGPA for {selected_sem} Semester"):
-    total_credits = 0
-    total_points = 0
-    all_filled = True
-    for subject, credit in subjects.items():
-        val = marks_dict[subject]
-        if val is None:
-            all_filled = False
-            break
-        total_credits += credit
-        total_points += calculate_grade_point(val) * credit
-    
-    if all_filled:
-        # Spinner for calculation animation
-        with st.spinner('Calculating your SGPA...'):
-            time.sleep(0.8)
-            sgpa = total_points / total_credits
-            st.balloons()
-            st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
+if st.button(f"Calculate SGPA for Sem {selected_sem}"):
+    if None not in marks_dict.values():
+        pts = sum(calculate_grade_point(m) * subjects[s] for s, m in marks_dict.items())
+        total_c = sum(subjects.values())
+        st.success(f"🎉 Semester {selected_sem} SGPA: {round(pts/total_c, 2)}")
     else:
-        st.warning("⚠️ Please fill all subject marks.")
+        st.warning("⚠️ Please fill all marks.")
 
-# ---------- CGPA CALCULATOR SECTION ----------
+# ---------- CGPA CALCULATOR ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.subheader("CGPA Calculator")
-
-sgpa_inputs = {}
-
-# Strict 1-8 vertical order
-for sem in range(1, 9):
-    val = st.number_input(
-        f"Sem {sem} SGPA", 
-        min_value=0.0, max_value=10.0, value=None, step=0.01,
-        placeholder="Enter SGPA", key=f"cgpa_input_{sem}"
-    )
-    sgpa_inputs[sem] = val
+cgpa_inputs = [st.number_input(f"Sem {i} SGPA", 0.0, 10.0, value=None, key=f"cgpa_{i}") for i in range(1, 9)]
 
 if st.button("Calculate Final CGPA"):
-    valid_values = [v for v in sgpa_inputs.values() if v is not None]
-    if valid_values:
-        with st.spinner('Calculating final CGPA...'):
-            time.sleep(1)
-            final_cgpa = sum(valid_values) / len(valid_values)
-            st.snow()
-            st.success(f"🎉 Your final CGPA: {round(final_cgpa, 2)}")
+    valid_sgpas = [v for v in cgpa_inputs if v is not None]
+    if valid_sgpas:
+        final_val = sum(valid_sgpas) / len(valid_sgpas)
+        st.success(f"🎉 Your final CGPA: {round(final_val, 2)}")
     else:
-        st.warning("⚠️ Please enter at least one Semester SGPA.")
+        st.warning("⚠️ Enter at least one SGPA.")
