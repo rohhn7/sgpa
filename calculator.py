@@ -1,152 +1,125 @@
 import streamlit as st
 from PIL import Image
-import base64
-from io import BytesIO
 
-# ---------- PAGE CONFIG ----------
-st.set_page_config(page_title="SIT AIML SGPA & CGPA Calculator", layout="centered")
+# ---------- MOBILE-FIRST CONFIG ----------
+st.set_page_config(page_title="SIT AIML Calc", page_icon="🎓", layout="centered")
 
-# ---------- CUSTOM CSS ----------
+# ---------- MOBILE OPTIMIZED CSS ----------
 st.markdown("""
 <style>
-body { background-color: #f5f7fa; color: #1c1c1c; }
-h2 { color: #1b4f72; }
-h4 { color: #e67e22; }
-.stButton>button {
-    background-color: #1abc9c;
-    color: white;
-    height: 40px;
-    width: 100%;
-    border-radius:10px;
-    font-size: 16px;
-}
-.stNumberInput>div>div>input {
-    height: 35px;
-    font-size: 16px;
-}
+    /* Prevent horizontal scrolling */
+    .main { overflow-x: hidden; }
+    
+    /* Make buttons and inputs large for thumbs */
+    .stButton>button {
+        width: 100%;
+        height: 55px; /* Large touch target */
+        border-radius: 12px;
+        font-size: 18px !important;
+        font-weight: 700;
+        background: #059669;
+        margin-top: 10px;
+    }
+    
+    /* Input field styling */
+    .stNumberInput input {
+        height: 45px !important;
+        font-size: 16px !important;
+    }
 
-/* --- THE CHANGE: HIDE LOADING/CALCULATING STATUS --- */
-div[data-testid="stStatusWidget"] {
-    display: none !important;
-}
-/* --------------------------------------------------- */
+    /* Result Card */
+    .mobile-result {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 2px solid #059669;
+        margin: 20px 0;
+    }
+
+    /* Clean Header */
+    .header-text {
+        text-align: center;
+        padding: 10px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- LOGO ----------
+# ---------- HEADER ----------
 try:
-    logo = Image.open("logo.png")
-    buffered = BytesIO()
-    logo.save(buffered, format="PNG")
-    img_str = base64.b64encode(buffered.getvalue()).decode()
-    st.markdown(
-        f"<div style='text-align:center; margin-top:10px; margin-bottom:20px;'>"
-        f"<img src='data:image/png;base64,{img_str}' width='180'/></div>",
-        unsafe_allow_html=True
-    )
+    st.image("logo.png", width=120) # Center-aligned by default in 'centered' layout
 except:
-    st.warning("Logo file not found. Make sure 'logo.png' is in the same folder as calculator.py")
+    st.markdown("<h3 style='text-align:center;'>🎓 SIT AIML</h3>", unsafe_allow_html=True)
 
-# ---------- TITLE ----------
-st.markdown("<h2 style='text-align: center;font-size:29px;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center;font-size:20px;'>Artificial Intelligence & Machine Learning</h4>", unsafe_allow_html=True)
-st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("""
+    <div class='header-text'>
+        <h2 style='margin-bottom:0;'>Grade Portal</h2>
+        <p style='color:#64748b;'>Srinivas Institute of Technology</p>
+    </div>
+""", unsafe_allow_html=True)
 
-# ---------- GRADE FUNCTION ----------
-def calculate_grade_point(marks):
-    if marks >= 90: return 10
-    elif marks >= 80: return 9
-    elif marks >= 70: return 8
-    elif marks >= 60: return 7
-    elif marks >= 50: return 6
-    elif marks >= 40: return 4
-    else: return 0
+# ---------- LOGIC ----------
+def get_gp(m):
+    if m >= 90: return 10
+    if m >= 80: return 9
+    if m >= 70: return 8
+    if m >= 60: return 7
+    if m >= 50: return 6
+    if m >= 45: return 5
+    if m >= 40: return 4
+    return 0
 
-# ---------- SUBJECTS PER SEM ----------
-sem_subjects = {
-    "3": {
-        "Mathematics for CS (BCS301)":4, "Digital Design & CO (BCS302)":4,
-        "Operating Systems (BCS303)":4, "Data Structures (BCS304)":3,
-        "Data Structures Lab (BCSL305)":1, "OOP with Java (BCS306A)":3,
-        "Social Connectivity And Responsibility (BSCK307)":1,
-        "Data Analytics With Excel (BCS358A)":1
-    },
-    "4": {
-        "Mathematics for AI (BCS401)":4, "Computer Networks (BCS402)":4,
-        "Database Management (BCS403)":4, "Machine Learning Basics (BCS404)":3,
-        "ML Lab (BCSL405)":1, "Web Programming (BCS406A)":3,
-        "Professional Ethics (BSCK407)":1
-    },
-    "5": {
-        "Data Mining (BCS501)":4, "Deep Learning (BCS502)":4,
-        "NLP (BCS503)":4, "AI Lab (BCSL504)":3,
-        "Big Data Analytics (BCS505A)":3, "Soft Skills (BSCK506)":1
-    },
-    "6": {
-        "Computer Vision (BCS601)":4, "Reinforcement Learning (BCS602)":4,
-        "Cloud Computing (BCS603)":3, "AI Project Lab (BCSL604)":3,
-        "Entrepreneurship (BSCK605)":1
-    },
-    "7": {
-        "Advanced ML (BCS701)":4, "Robotics AI (BCS702)":4,
-        "IoT & AI (BCS703)":3, "AI Project Lab 2 (BCSL704)":3
-    },
-    "8": {
-        "AI Thesis (BCS801)":6, "Internship Evaluation (BCS802)":4
-    }
+sem_data = {
+    "Sem 3": {"Maths":4, "DDCO":4, "OS":4, "DS":3, "DS Lab":1, "Java":3, "Social":1, "Excel":1},
+    "Sem 4": {"Maths AI":4, "CN":4, "DBMS":4, "ML":3, "ML Lab":1, "Web":3, "Ethics":1},
+    "Sem 5": {"Mining":4, "Deep L":4, "NLP":4, "AI Lab":3, "Big Data":3, "Soft Skills":1},
+    # Add others as needed...
 }
 
-# ---------- SGPA CALCULATOR SECTION ----------
-selected_sem = st.selectbox("Select Semester to calculate SGPA", options=["3","4","5","6","7","8"])
-st.subheader(f"{selected_sem} Semester SGPA Calculator")
+# ---------- TABS FOR MOBILE ----------
+tab1, tab2 = st.tabs(["📊 SGPA", "📈 CGPA"])
 
-subjects = sem_subjects[selected_sem]
-marks_dict = {}
-
-for subject, credit in subjects.items():
-    marks = st.number_input(
-        f"{subject} (Credits:{credit})", 
-        min_value=0, max_value=100, value=None, step=1,
-        placeholder="Enter marks", key=f"marks_{selected_sem}_{subject}"
-    )
-    marks_dict[subject] = marks
-
-if st.button(f"Calculate SGPA for {selected_sem} Semester"):
-    total_credits = 0
-    total_points = 0
-    all_filled = True
-    for subject, credit in subjects.items():
-        val = marks_dict[subject]
-        if val is None:
-            all_filled = False
-            break
-        total_credits += credit
-        total_points += calculate_grade_point(val) * credit
+with tab1:
+    sel_sem = st.selectbox("Choose Semester", list(sem_data.keys()))
+    subjects = sem_data[sel_sem]
     
-    if all_filled:
-        sgpa = total_points / total_credits
-        st.success(f"🎉 {selected_sem} Semester SGPA: {round(sgpa,2)}")
-    else:
-        st.warning("⚠️ Please fill all subject marks.")
+    marks_entry = {}
+    st.info("👇 Enter marks for each subject")
+    
+    # Single column layout for mobile scrolling
+    for sub, cr in subjects.items():
+        marks_entry[sub] = st.number_input(f"{sub} ({cr} Cr)", 0, 100, step=1, key=f"m_{sub}")
 
-# ---------- CGPA CALCULATOR SECTION ----------
-st.markdown("<hr>", unsafe_allow_html=True)
-st.subheader("CGPA Calculator")
+    if st.button("Calculate My SGPA"):
+        total_p = sum(get_gp(m) * subjects[s] for s, m in marks_entry.items())
+        total_c = sum(subjects.values())
+        sgpa = total_p / total_c
+        
+        st.markdown(f"""
+            <div class='mobile-result'>
+                <p style='margin:0; color:#64748b;'>Your Result</p>
+                <h1 style='margin:0; color:#059669;'>{sgpa:.2f}</h1>
+            </div>
+        """, unsafe_allow_html=True)
 
-sgpa_inputs = {}
-
-for sem in range(1, 9):
-    val = st.number_input(
-        f"Sem {sem} SGPA", 
-        min_value=0.0, max_value=10.0, value=None, step=0.01,
-        placeholder="Enter SGPA", key=f"cgpa_input_{sem}"
-    )
-    sgpa_inputs[sem] = val
-
-if st.button("Calculate Final CGPA"):
-    valid_values = [v for v in sgpa_inputs.values() if v is not None]
-    if valid_values:
-        final_cgpa = sum(valid_values) / len(valid_values)
-        st.success(f"🎉 Your final CGPA: {round(final_cgpa, 2)}")
-    else:
-        st.warning("⚠️ Please enter at least one Semester SGPA.")
+with tab2:
+    st.markdown("#### Cumulative Average")
+    cgpa_inputs = []
+    # Using 2-column grid for CGPA to keep it compact but readable
+    c1, c2 = st.columns(2)
+    for i in range(1, 9):
+        col = c1 if i % 2 != 0 else c2
+        val = col.number_input(f"Sem {i}", 0.0, 10.0, step=0.01, key=f"c_{i}")
+        if val > 0: cgpa_inputs.append(val)
+        
+    if st.button("Calculate Final CGPA"):
+        if cgpa_inputs:
+            res = sum(cgpa_inputs) / len(cgpa_inputs)
+            st.balloons()
+            st.markdown(f"""
+                <div class='mobile-result' style='background:#1e293b; border-color:#10b981;'>
+                    <p style='margin:0; color:#94a3b8;'>Final CGPA</p>
+                    <h1 style='margin:0; color:#10b981;'>{res:.2f}</h1>
+                </div>
+            """, unsafe_allow_html=True)
