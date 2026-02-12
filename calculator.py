@@ -4,69 +4,70 @@ from PIL import Image
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML Portal", page_icon="🎓", layout="centered")
 
-# ---------- CUSTOM CSS ----------
+# ---------- CRITICAL FIXES CSS ----------
 st.markdown("""
 <style>
-    /* Force Centering for Header & Logo */
-    .stImage {
+    /* 1. CENTER THE LOGO & HEADER */
+    [data-testid="stImage"] {
         display: flex;
         justify-content: center;
     }
     
     .header-container {
         text-align: center;
+        width: 100%;
         margin-bottom: 20px;
     }
-    
-    /* Mobile Card Styling */
+
+    /* 2. MAKE SUBJECT NAMES HIGHLY VISIBLE */
+    /* This forces the label text to be White and Bold regardless of theme */
+    label p {
+        color: #FFFFFF !important;
+        font-size: 1.05rem !important;
+        font-weight: 700 !important;
+        opacity: 1 !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* 3. MOBILE CARD STYLE */
     .result-card {
-        background-color: #ffffff;
+        background-color: #1e293b;
         border-radius: 15px;
         padding: 25px;
         text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        border-top: 6px solid #059669;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        border: 2px solid #059669;
         margin: 20px 0;
     }
 
-    /* Large Touch-Friendly Buttons */
+    /* BUTTON STYLING */
     .stButton>button {
         width: 100%;
-        height: 60px;
+        height: 55px;
         border-radius: 12px;
-        background: #059669;
+        background-color: #059669;
         color: white;
-        font-weight: 700;
-        font-size: 1.1rem;
+        font-weight: bold;
         border: none;
-        margin-top: 10px;
-    }
-
-    /* Styling Inputs for readability */
-    .stNumberInput label p {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1e293b;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- CENTERED HEADER ----------
+# ---------- CENTERED LOGO & HEADER ----------
 st.markdown("<div class='header-container'>", unsafe_allow_html=True)
 try:
-    # Use use_container_width=False with a specific width for centering
     st.image("logo.png", width=160)
 except:
-    st.markdown("### 🎓 SIT MANGALURU")
+    st.write("🎓 **SIT MANGALURU**")
 
 st.markdown("""
-    <h2 style='margin-bottom:0;'>Srinivas Institute of Technology</h2>
-    <p style='color:#64748b; font-size:1.1rem; font-weight:500;'>Dept. of Artificial Intelligence & Machine Learning</p>
-    <hr style='border:0.5px solid #e2e8f0;'>
+    <h2 style='margin-bottom:0; color: white;'>Srinivas Institute of Technology</h2>
+    <p style='color:#10b981; font-size:1.1rem; font-weight:bold;'>Artificial Intelligence & Machine Learning</p>
+    <hr style='border:0.5px solid #334155;'>
     </div>
 """, unsafe_allow_html=True)
 
-# ---------- DATA (ALL 8 SEMESTERS) ----------
+# ---------- FULL CURRICULUM DATA ----------
 sem_subjects = {
     "3rd Semester": {
         "Mathematics for Computer Science (BCS301)": 4,
@@ -132,9 +133,10 @@ with tab1:
     selected_sem = st.selectbox("Select Your Semester", list(sem_subjects.keys()))
     current_subjects = sem_subjects[selected_sem]
     
-    st.markdown(f"**Enter Marks for {selected_sem}:**")
+    st.markdown("<p style='color: #94a3b8;'>Enter marks for each subject:</p>", unsafe_allow_html=True)
     marks_input = {}
     for sub, credit in current_subjects.items():
+        # Added (Cr: X) inside the label for clarity
         marks_input[sub] = st.number_input(
             f"{sub} (Cr: {credit})", 
             min_value=0, max_value=100, value=None, step=1,
@@ -143,7 +145,7 @@ with tab1:
 
     if st.button("Calculate SGPA"):
         if None in marks_input.values():
-            st.error("❌ Please fill all marks.")
+            st.error("⚠️ Please enter marks for all subjects.")
         else:
             total_p = sum(get_gp(m) * current_subjects[s] for s, m in marks_input.items())
             total_c = sum(current_subjects.values())
@@ -151,16 +153,15 @@ with tab1:
             
             st.markdown(f"""
                 <div class='result-card'>
-                    <p style='color:#64748b; font-weight:bold;'>{selected_sem.upper()} RESULT</p>
-                    <h1 style='color:#059669; font-size:3.5rem; margin:0;'>{res_sgpa:.2f}</h1>
+                    <p style='color:#94a3b8; font-weight:bold; margin-bottom:5px;'>SEMESTER RESULT</p>
+                    <h1 style='color:#10b981; font-size:4rem; margin:0;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
 
 with tab2:
-    st.markdown("**Enter SGPA for each Semester:**")
+    st.markdown("<p style='color: white; font-weight: bold;'>Enter SGPA for each Semester:</p>", unsafe_allow_html=True)
     cgpa_list = []
     
-    # Single column for CGPA as requested
     for i in range(1, 9):
         val = st.number_input(f"Semester {i} SGPA", 0.0, 10.0, step=0.01, value=None, key=f"cgpa_sem_{i}")
         if val is not None:
@@ -171,9 +172,9 @@ with tab2:
             final_res = sum(cgpa_list) / len(cgpa_list)
             st.balloons()
             st.markdown(f"""
-                <div class='result-card' style='border-top-color:#1e293b;'>
-                    <p style='color:#64748b; font-weight:bold;'>FINAL CUMULATIVE CGPA</p>
-                    <h1 style='color:#1e293b; font-size:3.5rem; margin:0;'>{final_res:.2f}</h1>
+                <div class='result-card' style='border-color:white;'>
+                    <p style='color:#94a3b8; font-weight:bold; margin-bottom:5px;'>FINAL GRADUATION CGPA</p>
+                    <h1 style='color:white; font-size:4rem; margin:0;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
         else:
