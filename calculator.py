@@ -4,41 +4,37 @@ from PIL import Image
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML Portal", page_icon="🎓", layout="centered")
 
-# ---------- THE "AGGRESSIVE CENTER" CSS ----------
+# ---------- THE "FORCE CENTER" CSS ----------
 st.markdown("""
 <style>
-    /* 1. FORCE LOGO TO ABSOLUTE CENTER */
-    /* Targets the div that contains the image */
-    [data-testid="stHorizontalBlock"] {
-        align-items: center;
-    }
-    
-    [data-testid="stImage"] {
+    /* 1. CENTER LOGO FORCIBLY ON ALL DEVICES */
+    .stApp [data-testid="stVerticalBlock"] > div:first-child {
         display: flex;
         justify-content: center;
-        margin-left: auto;
-        margin-right: auto;
-        width: 100% !important;
+        align-items: center;
     }
 
-    [data-testid="stImage"] > img {
-        margin-left: auto;
-        margin-right: auto;
+    /* Target the image container directly */
+    [data-testid="stImage"] {
+        display: flex !important;
+        justify-content: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
-    /* 2. CENTER THE TEXT HEADER */
+    /* 2. TEXT HEADER ALIGNMENT */
     .centered-header {
         text-align: center;
         width: 100%;
-        margin-bottom: 20px;
+        margin-top: -10px;
     }
 
-    /* 3. VISIBILITY FIX: LABELS BOLD & WHITE */
+    /* 3. VISIBILITY: BOLD WHITE LABELS */
     label p {
         color: #FFFFFF !important;
         font-size: 1.1rem !important;
         font-weight: 700 !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 5px !important;
     }
 
     /* 4. BUTTON & CARD STYLING */
@@ -49,8 +45,8 @@ st.markdown("""
         background: #059669;
         color: white;
         font-weight: bold;
-        font-size: 1.1rem;
         border: none;
+        font-size: 1.1rem;
     }
 
     .result-card {
@@ -59,30 +55,31 @@ st.markdown("""
         padding: 25px;
         text-align: center;
         border: 2px solid #059669;
-        margin-top: 25px;
+        margin-top: 20px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- HEADER (CENTERED) ----------
-# We use a column layout to help force the image to take up the full center width
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    try:
-        st.image("logo.png", width=160)
-    except:
-        st.markdown("<h2 style='text-align:center;'>🎓 SIT</h2>", unsafe_allow_html=True)
+# ---------- CENTERED LOGO ----------
+# Using a container-less approach to avoid column stacking issues on mobile
+try:
+    st.image("logo.png", width=160)
+except:
+    st.markdown("<h1 style='text-align:center;'>🎓</h1>", unsafe_allow_html=True)
 
-st.markdown("<div class='centered-header'>", unsafe_allow_html=True)
-st.markdown("<h2 style='color: white; margin-top: 10px; margin-bottom: 0;'>Srinivas Institute of Technology</h2>", unsafe_allow_html=True)
-st.markdown("<p style='color: #10b981; font-weight: 800; font-size: 1.2rem; margin-top: 5px;'>Artificial Intelligence & Machine Learning</p>", unsafe_allow_html=True)
-st.markdown("<hr style='border-color: #334155;'>", unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)
+# ---------- CENTERED TEXT ----------
+st.markdown("""
+    <div class='centered-header'>
+        <h2 style='color: white; margin: 0;'>Srinivas Institute of Technology</h2>
+        <p style='color: #10b981; font-weight: 800; font-size: 1.2rem;'>Artificial Intelligence & Machine Learning</p>
+        <hr style='border-color: #334155; margin-top: 10px;'>
+    </div>
+""", unsafe_allow_html=True)
 
-# ---------- CURRICULUM DATA ----------
+# ---------- DATA ----------
 sem_subjects = {
     "3rd Semester": {
-        "Mathematics for Computer Science (BCS301)": 4, "Digital Design & Computer Organization (BCS302)": 4,
+        "Mathematics for Computer Science (BCS301)": 4, "Digital Design & CO (BCS302)": 4,
         "Operating Systems (BCS303)": 4, "Data Structures (BCS304)": 3, "Data Structures Lab (BCSL305)": 1,
         "OOP with Java (BCS306A)": 3, "Social Connectivity (BSCK307)": 1, "Data Analytics (BCS358A)": 1
     },
@@ -115,7 +112,7 @@ def get_gp(marks):
     elif marks >= 40: return 4
     else: return 0
 
-# ---------- UI TABS ----------
+# ---------- MAIN INTERFACE ----------
 tab1, tab2 = st.tabs(["📊 SGPA Calculator", "📈 CGPA Calculator"])
 
 with tab1:
@@ -124,7 +121,7 @@ with tab1:
     
     marks_input = {}
     for sub, credit in current_subjects.items():
-        # Added 'placeholder' as requested
+        # PLACEHOLDER: Enter the marks
         marks_input[sub] = st.number_input(
             f"{sub} (Cr: {credit})", 
             min_value=0, max_value=100, value=None, step=1,
@@ -132,9 +129,9 @@ with tab1:
             key=f"sgpa_in_{sub}"
         )
 
-    if st.button("Calculate SGPA"):
+    if st.button("Generate SGPA Result"):
         if None in marks_input.values():
-            st.error("⚠️ Please fill in all subject marks.")
+            st.error("⚠️ Please fill in all marks.")
         else:
             total_p = sum(get_gp(m) * current_subjects[s] for s, m in marks_input.items())
             total_c = sum(current_subjects.values())
@@ -152,7 +149,7 @@ with tab2:
     cgpa_list = []
     
     for i in range(1, 9):
-        # Added 'placeholder' as requested
+        # PLACEHOLDER: 0.00
         val = st.number_input(
             f"Semester {i} SGPA", 
             min_value=0.0, max_value=10.0, value=None, step=0.01,
