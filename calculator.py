@@ -240,8 +240,11 @@ with tab2:
 
     target_cgpa = st.number_input(
         "Enter your Target CGPA",
-        min_value=0.0, max_value=10.0, step=0.01,
-        placeholder="Example: 9.00",
+        min_value=0.0,
+        max_value=10.0,
+        value=None,                # 👈 No default value
+        step=0.01,
+        placeholder="0.00",        # 👈 Same italic placeholder
         key="target_cgpa_input"
     )
 
@@ -260,7 +263,6 @@ with tab2:
                 current_total = sum(cgpa_list)
                 required_total = target_cgpa * 8
                 needed_total = required_total - current_total
-
                 required_sgpa = needed_total / remaining_sem
 
                 if required_sgpa > 10:
