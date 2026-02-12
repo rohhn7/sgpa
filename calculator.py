@@ -65,7 +65,18 @@ st.markdown(f"""
         opacity: 0.9;
     }}
 
-    /* 4. BUTTONS */
+    /* 4. PLACEHOLDER ITALICS FIX */
+    ::placeholder {{
+        color: rgba(255, 255, 255, 0.3) !important;
+        font-style: italic !important;
+    }}
+    
+    input::placeholder {{
+        color: rgba(255, 255, 255, 0.3) !important;
+        font-style: italic !important;
+    }}
+
+    /* 5. BUTTONS */
     .stButton>button {{
         width: 100%;
         height: 52px;
@@ -77,14 +88,13 @@ st.markdown(f"""
         margin-top: 10px;
     }}
 
-    /* 5. THE ABSOLUTE CENTER RESULT CARD FIX */
+    /* 6. THE ABSOLUTE CENTER RESULT CARD */
     .result-card {{
         background-color: #1e293b;
         border-radius: 15px;
         padding: 30px 10px;
         border: 1px solid #334155;
         margin-top: 25px;
-        /* Force strict center alignment */
         display: flex;
         flex-direction: column;
         align-items: center;
