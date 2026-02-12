@@ -32,35 +32,37 @@ st.markdown(f"""
     }}
 
     .logo-img {{
-        width: 120px; /* Slightly smaller for mobile fit */
+        width: 120px;
         height: auto;
         margin-bottom: 10px;
     }}
 
-    /* 2. HEADING SIZE ADJUSTMENT (One-line fix for mobile) */
+    /* 2. HEADING SIZE (Single-line fix) */
     .college-title {{
         color: #ffffff !important; 
         margin: 0px;
-        font-weight: 700;
-        font-size: 1.35rem !important; /* Reduced for single-line fit */
-        letter-spacing: 0.2px;
-        white-space: nowrap; /* Prevents wrapping */
+        font-weight: 600;
+        font-size: 1.3rem !important;
+        white-space: nowrap;
     }}
 
     .dept-title {{
         color: #10b981 !important; 
-        font-weight: 600;
-        font-size: 0.95rem; /* Balanced with main title */
+        font-weight: 500;
+        font-size: 0.9rem;
         margin-top: 4px;
         opacity: 0.9;
     }}
 
-    /* 3. SUBJECT NAMES & CREDITS (BRIGHT WHITE) */
+    /* 3. SUBJECT NAMES & CREDITS (THIN WHITE) */
+    /* Changed weight from 700 (bold) to 400 (thin/regular) */
     label p {{
         color: #ffffff !important; 
-        font-size: 1.05rem !important;
-        font-weight: 700 !important;
-        margin-bottom: 2px !important;
+        font-size: 0.95rem !important;
+        font-weight: 400 !important; 
+        letter-spacing: 0.4px;
+        margin-bottom: 1px !important;
+        opacity: 0.95;
     }}
 
     /* 4. BUTTONS & CARDS */
@@ -70,7 +72,7 @@ st.markdown(f"""
         background: #059669;
         border-radius: 12px;
         color: white;
-        font-weight: bold;
+        font-weight: 600;
         border: none;
     }}
 
@@ -167,8 +169,8 @@ with tab1:
             
             st.markdown(f"""
                 <div class='result-card'>
-                    <p style='color:#94a3b8; font-weight:bold; font-size:0.9rem;'>SEMESTER RESULT</p>
-                    <h1 style='color:#10b981; font-size:4rem; margin:0;'>{res_sgpa:.2f}</h1>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>SGPA</p>
+                    <h1 style='color:#10b981; font-size:3.5rem; margin:0;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -190,9 +192,10 @@ with tab2:
             st.balloons()
             st.markdown(f"""
                 <div class='result-card' style='border-color:white;'>
-                    <p style='color:#94a3b8; font-weight:bold; font-size:0.9rem;'>FINAL GRADUATION CGPA</p>
-                    <h1 style='color:white; font-size:4rem; margin:0;'>{final_res:.2f}</h1>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>CGPA</p>
+                    <h1 style='color:white; font-size:3.5rem; margin:0;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
         else:
             st.warning("⚠️ Enter at least one Semester SGPA.")
+
