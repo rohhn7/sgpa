@@ -91,21 +91,23 @@ st.markdown(f"""
     .result-card {{
         background-color: #1e293b;
         border-radius: 15px;
-        padding: 25px;
+        padding: 30px 10px;
         border: 1px solid #334155;
         margin-top: 20px;
-        /* FIXED CENTERING LOGIC */
+        /* UPDATED CENTER LOGIC */
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        text-align: center;
+        width: 100%;
+        gap: 5px;
     }}
     
     .result-card h1, .result-card p {{
-        margin: 0 !important;
-        padding: 0 !important;
+        margin: 0px !important;
+        padding: 0px !important;
         text-align: center !important;
+        line-height: 1.2 !important;
         width: 100%;
     }}
 </style>
@@ -194,7 +196,7 @@ with tab1:
             st.markdown(f"""
                 <div class='result-card'>
                     <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>SGPA</p>
-                    <h1 style='color:#10b981; font-size:3.5rem; margin-top:5px;'>{res_sgpa:.2f}</h1>
+                    <h1 style='color:#10b981; font-size:3.5rem;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -217,7 +219,7 @@ with tab2:
             st.markdown(f"""
                 <div class='result-card' style='border-color:white;'>
                     <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>CGPA</p>
-                    <h1 style='color:white; font-size:3.5rem; margin-top:5px;'>{final_res:.2f}</h1>
+                    <h1 style='color:white; font-size:3.5rem;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
         else:
