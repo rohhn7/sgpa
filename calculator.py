@@ -21,7 +21,7 @@ st.markdown(f"""
         background-color: #0e1117;
     }}
     
-    /* 2. EXACT CENTER STACKING (Logo -> Title -> Dept) */
+    /* 2. HEADER STACKING */
     .main-header {{
         display: flex;
         flex-direction: column;
@@ -56,7 +56,7 @@ st.markdown(f"""
         opacity: 0.85;
     }}
 
-    /* 3. THIN WHITE SUBJECT LABELS */
+    /* 3. INPUT LABELS */
     label p {{
         color: #ffffff !important; 
         font-size: 0.95rem !important;
@@ -65,18 +65,17 @@ st.markdown(f"""
         opacity: 0.9;
     }}
 
-    /* 4. SOFT PLACEHOLDER TEXT (Enter the marks / 0.00) */
+    /* 4. PLACEHOLDERS */
     ::placeholder {{
-        color: rgba(255, 255, 255, 0.3) !important; /* Very light/faint white */
+        color: rgba(255, 255, 255, 0.3) !important;
     }}
     
-    /* Target the inner input text for Streamlit number inputs */
     input::placeholder {{
         color: rgba(255, 255, 255, 0.3) !important;
         font-style: italic;
     }}
 
-    /* 5. BUTTONS & RESULT CARDS */
+    /* 5. BUTTONS */
     .stButton>button {{
         width: 100%;
         height: 52px;
@@ -88,27 +87,36 @@ st.markdown(f"""
         margin-top: 10px;
     }}
 
+    /* 6. FIXED RESULT CARD CENTERING */
     .result-card {{
         background-color: #1e293b;
         border-radius: 15px;
-        padding: 30px 10px;
+        padding: 40px 20px;
         border: 1px solid #334155;
         margin-top: 20px;
-        /* UPDATED CENTER LOGIC */
+        
+        /* This forces everything inside to stay in the exact center */
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 100%;
-        gap: 5px;
+        text-align: center;
     }}
-    
-    .result-card h1, .result-card p {{
-        margin: 0px !important;
-        padding: 0px !important;
-        text-align: center !important;
-        line-height: 1.2 !important;
-        width: 100%;
+
+    .result-label {{
+        color: #94a3b8; 
+        font-weight: bold; 
+        font-size: 0.85rem;
+        margin: 0 0 10px 0 !important; /* Forces spacing below label only */
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }}
+
+    .result-value {{
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+        font-weight: 700;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -195,8 +203,8 @@ with tab1:
             
             st.markdown(f"""
                 <div class='result-card'>
-                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>SGPA</p>
-                    <h1 style='color:#10b981; font-size:3.5rem;'>{res_sgpa:.2f}</h1>
+                    <div class='result-label'>SGPA</div>
+                    <h1 class='result-value' style='color:#10b981; font-size:3.5rem;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -218,8 +226,8 @@ with tab2:
             st.balloons()
             st.markdown(f"""
                 <div class='result-card' style='border-color:white;'>
-                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>CGPA</p>
-                    <h1 style='color:white; font-size:3.5rem;'>{final_res:.2f}</h1>
+                    <div class='result-label'>CGPA</div>
+                    <h1 class='result-value' style='color:white; font-size:3.5rem;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
         else:
