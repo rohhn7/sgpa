@@ -181,7 +181,7 @@ with tab1:
             
             st.markdown(f"""
                 <div class='result-card'>
-                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>SEMESTER RESULT</p>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>SGPA</p>
                     <h1 style='color:#10b981; font-size:3.5rem; margin:0;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
@@ -204,7 +204,7 @@ with tab2:
             st.balloons()
             st.markdown(f"""
                 <div class='result-card' style='border-color:white;'>
-                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>FINAL GRADUATION CGPA</p>
+                    <p style='color:#94a3b8; font-weight:bold; font-size:0.8rem;'>CGPA</p>
                     <h1 style='color:white; font-size:3.5rem; margin:0;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
