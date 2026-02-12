@@ -4,43 +4,36 @@ from PIL import Image
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="SIT AIML Portal", page_icon="🎓", layout="centered")
 
-# ---------- CRITICAL FIXES CSS ----------
+# ---------- THE "FIX-IT" CSS ----------
 st.markdown("""
 <style>
-    /* 1. CENTER THE LOGO & HEADER */
+    /* 1. FORCE CENTER LOGO & TEXT */
+    .stApp {
+        background-color: #0e1117;
+    }
+    
+    /* Target the image container specifically for centering */
     [data-testid="stImage"] {
         display: flex;
         justify-content: center;
+        margin-left: auto;
+        margin-right: auto;
     }
     
-    .header-container {
+    .centered-header {
         text-align: center;
         width: 100%;
-        margin-bottom: 20px;
     }
 
-    /* 2. MAKE SUBJECT NAMES HIGHLY VISIBLE */
-    /* This forces the label text to be White and Bold regardless of theme */
+    /* 2. MAKE SUBJECT LABELS BRIGHT & BOLD */
     label p {
         color: #FFFFFF !important;
-        font-size: 1.05rem !important;
+        font-size: 1.1rem !important;
         font-weight: 700 !important;
-        opacity: 1 !important;
-        margin-bottom: 5px !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
 
-    /* 3. MOBILE CARD STYLE */
-    .result-card {
-        background-color: #1e293b;
-        border-radius: 15px;
-        padding: 25px;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        border: 2px solid #059669;
-        margin: 20px 0;
-    }
-
-    /* BUTTON STYLING */
+    /* 3. BUTTON & INPUT STYLING */
     .stButton>button {
         width: 100%;
         height: 55px;
@@ -48,26 +41,39 @@ st.markdown("""
         background-color: #059669;
         color: white;
         font-weight: bold;
+        font-size: 18px;
         border: none;
+        margin-top: 15px;
+    }
+    
+    /* Custom Result Card */
+    .result-card {
+        background-color: #1e293b;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        border: 2px solid #059669;
+        margin-top: 20px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- CENTERED LOGO & HEADER ----------
-st.markdown("<div class='header-container'>", unsafe_allow_html=True)
+# ---------- LOGO SECTION (CENTERED) ----------
+# Wrapping in a div to ensure text alignment follows the image
+st.markdown("<div class='centered-header'>", unsafe_allow_html=True)
 try:
     st.image("logo.png", width=160)
 except:
-    st.write("🎓 **SIT MANGALURU**")
+    st.markdown("## 🎓 SIT MANGALURU")
 
 st.markdown("""
-    <h2 style='margin-bottom:0; color: white;'>Srinivas Institute of Technology</h2>
-    <p style='color:#10b981; font-size:1.1rem; font-weight:bold;'>Artificial Intelligence & Machine Learning</p>
-    <hr style='border:0.5px solid #334155;'>
+    <h2 style='color: white; margin-top: 10px; margin-bottom: 0;'>Srinivas Institute of Technology</h2>
+    <p style='color: #10b981; font-weight: 800; font-size: 1.2rem; margin-top: 5px;'>Artificial Intelligence & Machine Learning</p>
+    <hr style='border-color: #334155;'>
     </div>
 """, unsafe_allow_html=True)
 
-# ---------- FULL CURRICULUM DATA ----------
+# ---------- CURRICULUM DATA ----------
 sem_subjects = {
     "3rd Semester": {
         "Mathematics for Computer Science (BCS301)": 4,
@@ -97,22 +103,16 @@ sem_subjects = {
         "Soft Skills & Communication (BSCK506)": 1
     },
     "6th Semester": {
-        "Computer Vision (BCS601)": 4,
-        "Reinforcement Learning (BCS602)": 4,
-        "Cloud Computing (BCS603)": 3,
-        "AI Capstone Project Lab (BCSL604)": 3,
+        "Computer Vision (BCS601)": 4, "Reinforcement Learning (BCS602)": 4,
+        "Cloud Computing (BCS603)": 3, "AI Capstone Project Lab (BCSL604)": 3,
         "Entrepreneurship & Management (BSCK605)": 1
     },
     "7th Semester": {
-        "Advanced Machine Learning (BCS701)": 4,
-        "Robotics & AI (BCS702)": 4,
-        "IoT & Smart Systems (BCS703)": 3,
-        "AI System Design Lab (BCSL704)": 3
+        "Advanced Machine Learning (BCS701)": 4, "Robotics & AI (BCS702)": 4,
+        "IoT & Smart Systems (BCS703)": 3, "AI System Design Lab (BCSL704)": 3
     },
     "8th Semester": {
-        "Project Work Phase-2 (BCS801)": 6,
-        "Internship / Professional Practice (BCS802)": 4,
-        "Technical Seminar (BCS803)": 1
+        "Project Work Phase-2 (BCS801)": 6, "Internship (BCS802)": 4, "Technical Seminar (BCS803)": 1
     }
 }
 
@@ -126,26 +126,28 @@ def get_gp(marks):
     elif marks >= 40: return 4
     else: return 0
 
-# ---------- UI TABS ----------
+# ---------- MAIN INTERFACE ----------
 tab1, tab2 = st.tabs(["📊 SGPA Calculator", "📈 CGPA Calculator"])
 
 with tab1:
     selected_sem = st.selectbox("Select Your Semester", list(sem_subjects.keys()))
     current_subjects = sem_subjects[selected_sem]
     
-    st.markdown("<p style='color: #94a3b8;'>Enter marks for each subject:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #94a3b8; font-weight: bold;'>Enter marks below:</p>", unsafe_allow_html=True)
+    
     marks_input = {}
     for sub, credit in current_subjects.items():
-        # Added (Cr: X) inside the label for clarity
+        # Added 'placeholder' for the light text "Enter the marks"
         marks_input[sub] = st.number_input(
             f"{sub} (Cr: {credit})", 
             min_value=0, max_value=100, value=None, step=1,
-            key=f"sgpa_{sub}"
+            placeholder="Enter the marks",
+            key=f"sgpa_in_{sub}"
         )
 
-    if st.button("Calculate SGPA"):
+    if st.button("Generate SGPA Result"):
         if None in marks_input.values():
-            st.error("⚠️ Please enter marks for all subjects.")
+            st.error("⚠️ Please fill in all subject marks.")
         else:
             total_p = sum(get_gp(m) * current_subjects[s] for s, m in marks_input.items())
             total_c = sum(current_subjects.values())
@@ -153,7 +155,7 @@ with tab1:
             
             st.markdown(f"""
                 <div class='result-card'>
-                    <p style='color:#94a3b8; font-weight:bold; margin-bottom:5px;'>SEMESTER RESULT</p>
+                    <p style='color:#94a3b8; font-weight:bold; letter-spacing: 1px;'>SEMESTER SGPA</p>
                     <h1 style='color:#10b981; font-size:4rem; margin:0;'>{res_sgpa:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
@@ -163,7 +165,13 @@ with tab2:
     cgpa_list = []
     
     for i in range(1, 9):
-        val = st.number_input(f"Semester {i} SGPA", 0.0, 10.0, step=0.01, value=None, key=f"cgpa_sem_{i}")
+        # Added 'placeholder' for the light text "0.00"
+        val = st.number_input(
+            f"Semester {i} SGPA", 
+            min_value=0.0, max_value=10.0, value=None, step=0.01,
+            placeholder="0.00",
+            key=f"cgpa_sem_in_{i}"
+        )
         if val is not None:
             cgpa_list.append(val)
             
@@ -173,9 +181,9 @@ with tab2:
             st.balloons()
             st.markdown(f"""
                 <div class='result-card' style='border-color:white;'>
-                    <p style='color:#94a3b8; font-weight:bold; margin-bottom:5px;'>FINAL GRADUATION CGPA</p>
+                    <p style='color:#94a3b8; font-weight:bold; letter-spacing: 1px;'>FINAL CGPA</p>
                     <h1 style='color:white; font-size:4rem; margin:0;'>{final_res:.2f}</h1>
                 </div>
             """, unsafe_allow_html=True)
         else:
-            st.warning("⚠️ Enter at least one Semester SGPA.")
+            st.warning("⚠️ Enter at least one Semester SGPA to calculate.")
